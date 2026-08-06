@@ -56,7 +56,12 @@
 }
 
 /* ── Base ────────────────────────────────────────────────── */
-html { font-size: 16px; background: var(--bg); }
+html { 
+  font-size: 16px; 
+  background: var(--bg); 
+  height: 100%;
+  height: -webkit-fill-available;
+}
 
 body {
   font-family: var(--font);
@@ -65,8 +70,7 @@ body {
   -webkit-font-smoothing: antialiased;
   overflow: hidden;
   height: 100%;
-  /* iOS fill */
-  min-height: 100dvh;
+  min-height: -webkit-fill-available;
 }
 
 .num { font-variant-numeric: tabular-nums; letter-spacing: -0.025em; }
@@ -75,7 +79,7 @@ body {
 #app {
   display: flex;
   flex-direction: column;
-  height: 100dvh;
+  height: 100%;
   overflow: hidden;
   background: var(--bg);
 }
@@ -668,8 +672,8 @@ body {
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: var(--tab-h);
-  box-sizing: content-box;
+  box-sizing: border-box;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
