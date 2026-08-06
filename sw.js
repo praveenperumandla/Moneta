@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moneta-v4.5';
+const CACHE_NAME = 'moneta-v4.5.1';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -16,7 +16,7 @@ self.addEventListener('install', (event) => {
       return cache.addAll(STATIC_ASSETS);
     }).catch(err => console.log('Cache failed:', err))
   );
-  self.skipWaiting();
+  // Do NOT call self.skipWaiting() here. Wait for the user to click the update button.
 });
 
 // Listen for skip waiting message from the app
