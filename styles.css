@@ -51,7 +51,7 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout */
-  --tab-h:    68px;
+  --tab-h:    54px;
   --hdr-h:    56px;
 }
 
@@ -678,7 +678,7 @@ input, textarea, select {
 .tab-btn {
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 4px; padding: 10px 4px 0;
+  gap: 4px; padding: 6px 4px 0;
   border: none; background: transparent;
   color: var(--t3); font-family: var(--font);
   cursor: pointer; transition: color 0.18s;
