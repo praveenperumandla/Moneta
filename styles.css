@@ -58,9 +58,7 @@
 /* ── Base ────────────────────────────────────────────────── */
 html, body { 
   font-size: 16px; 
-  background-color: var(--bg);
-  background-image: linear-gradient(to bottom, var(--bg) 50%, var(--surface-1) 50%);
-  background-attachment: fixed;
+  background-color: var(--surface-1);
   height: 100%;
   margin: 0; padding: 0;
   overflow: hidden;
@@ -668,8 +666,8 @@ input, textarea, select {
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  box-sizing: content-box;
-  height: var(--tab-h);
+  box-sizing: border-box;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
