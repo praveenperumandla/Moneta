@@ -666,8 +666,8 @@ input, textarea, select {
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  box-sizing: border-box;
-  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  box-sizing: content-box;
+  height: var(--tab-h);
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
