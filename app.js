@@ -997,7 +997,10 @@ document.addEventListener('DOMContentLoaded', () => {
     switchView('home');
 
     // Header buttons
-    document.getElementById('mobile-menu-btn').onclick = () => switchView('settings');
+    document.getElementById('mobile-menu-btn').onclick = () => {
+        const isSettings = document.getElementById('view-settings')?.classList.contains('active');
+        switchView(isSettings ? 'home' : 'settings');
+    };
 
     // Tab bar
     document.querySelectorAll('.tab-btn[data-view]').forEach(btn => {

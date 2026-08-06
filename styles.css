@@ -149,7 +149,7 @@ body {
 
 .view-content {
   padding: 20px 16px;
-  padding-bottom: calc(var(--tab-h) + 20px + env(safe-area-inset-bottom));
+  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 20px);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -669,7 +669,7 @@ body {
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
+  height: var(--tab-h);
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
