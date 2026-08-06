@@ -672,8 +672,6 @@ body {
   height: calc(var(--tab-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
-  
-  -webkit-
   border-top: 1px solid var(--border);
   display: flex; align-items: flex-start;
   z-index: 50;

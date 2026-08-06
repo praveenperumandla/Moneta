@@ -996,6 +996,9 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
     switchView('home');
 
+    // Header buttons
+    document.getElementById('mobile-menu-btn').onclick = () => switchView('settings');
+
     // Tab bar
     document.querySelectorAll('.tab-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
