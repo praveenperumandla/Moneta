@@ -37,8 +37,8 @@
       </div>
     </div>
     <div class="hdr-right">
-      <div class="hdr-avatar" id="hdr-avatar">JS</div>
-      <button class="hdr-icon-btn" aria-label="Notifications">
+      <div class="hdr-avatar" id="hdr-avatar" style="display:flex;align-items:center;justify-content:center;"><i class="ph ph-user" style="font-size:16px;"></i></div>
+      <button class="hdr-icon-btn" aria-label="Notifications" onclick="alert('Notifications coming soon!')">
         <i class="ph ph-bell"></i>
       </button>
     </div>
@@ -64,7 +64,7 @@
           <div class="nw-hero__label">Total Net Worth</div>
           <div class="nw-hero__value num" id="stat-net-worth">₹0</div>
           <div class="nw-hero__meta">
-            <span class="nw-hero__pill nw-hero__pill--up" id="nw-trend-pill">+0.0% this month</span>
+            <span class="nw-hero__pill nw-hero__pill--up" id="nw-trend-pill" style="display:none;">+0.0% this month</span>
           </div>
         </div>
 
@@ -177,7 +177,7 @@
           <div class="kpi-tile kpi-tile--principal">
             <div class="kpi-tile__label">Outstanding Principal</div>
             <div class="kpi-tile__value num" id="stat-total-principal">₹0</div>
-            <div class="kpi-tile__trend" id="stat-principal-trend">
+            <div class="kpi-tile__trend" id="stat-principal-trend" style="display:none;">
               <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +3.1%</span>
             </div>
             <div class="kpi-tile__sparkline">
@@ -189,7 +189,7 @@
           <div class="kpi-tile kpi-tile--interest">
             <div class="kpi-tile__label">Realized Interest</div>
             <div class="kpi-tile__value num" id="stat-realized-interest">₹0</div>
-            <div class="kpi-tile__trend">
+            <div class="kpi-tile__trend" style="display:none;">
               <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +14.2%</span>
             </div>
             <div class="kpi-tile__sparkline">
@@ -302,12 +302,12 @@
           <button class="back-btn" id="btn-back-borrowers">
             <i class="ph ph-caret-left"></i> Borrower Profile
           </button>
-          <button class="hdr-icon-btn" aria-label="Search"><i class="ph ph-magnifying-glass"></i></button>
+          <button class="hdr-icon-btn" aria-label="Search" onclick="alert('Search coming soon!')"><i class="ph ph-magnifying-glass"></i></button>
         </div>
 
         <!-- Profile Hero -->
         <div class="profile-hero">
-          <div class="profile-avatar" id="ledger-avatar">JS</div>
+          <div class="profile-avatar" id="ledger-avatar" style="display:flex;align-items:center;justify-content:center;"><i class="ph ph-user"></i></div>
           <h2 class="profile-name" id="ledger-person-name">—</h2>
           <div class="profile-id" id="ledger-person-stats">ID: —</div>
           <div class="profile-outstanding-card">

@@ -160,3 +160,5 @@ Release
 When in doubt,
 
 do not modify the accounting engine.
+- **Accounting Integrity:** Closed accounts are permanent. Do not build features to 'reopen' them. If a borrower needs a new loan, create a new Account. This prevents retroactive interest miscalculations.
+

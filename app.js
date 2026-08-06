@@ -28,7 +28,13 @@ const escapeHtml = (str) => {
 };
 
 // ── Utilities ────────────────────────────────────────────
-const generateId = () => Math.random().toString(36).substr(2, 9);
+const generateId = () => crypto.randomUUID();
+
+const parseLocalDate = (str) => {
+    if (!str) return new Date();
+    const [y, m, d] = str.split('-').map(Number);
+    return new Date(y, m - 1, d);
+};
 
 const formatCurrency = (amount) =>
     new Intl.NumberFormat('en-IN', {
@@ -39,7 +45,7 @@ const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Intl.DateTimeFormat('en-IN', {
         day: '2-digit', month: 'short', year: 'numeric'
-    }).format(new Date(dateString));
+    }).format(parseLocalDate(dateString));
 };
 
 const getTodayStr = () => {
@@ -48,7 +54,7 @@ const getTodayStr = () => {
 };
 
 const getDaysBetween = (date1Str, date2Str) => {
-    const d1 = new Date(date1Str), d2 = new Date(date2Str);
+    const d1 = parseLocalDate(date1Str), d2 = parseLocalDate(date2Str);
     const utc1 = Date.UTC(d1.getFullYear(), d1.getMonth(), d1.getDate());
     const utc2 = Date.UTC(d2.getFullYear(), d2.getMonth(), d2.getDate());
     return Math.floor((utc2 - utc1) / (1000 * 60 * 60 * 24));
@@ -369,6 +375,17 @@ const updateDashboard = () => {
     });
 
     if (expected > 0) cashFlows.push({ date: getTodayStr(), amount: expected });
+    else if (activeCount === 0 && activeData.accounts.length > 0) {
+        // If all accounts closed, use the latest closedDate instead of today
+        const latestClosed = activeData.accounts.reduce((latest, a) => {
+            if (!a.closedDate) return latest;
+            return a.closedDate > latest ? a.closedDate : latest;
+        }, '1970-01-01');
+        if (latestClosed !== '1970-01-01') {
+            // Need to insert a zero expected value at the latest closed date for XIRR to compute purely historical
+            cashFlows.push({ date: latestClosed, amount: 0 });
+        }
+    }
 
     const xirr = calculateXIRR(cashFlows);
     const xirrDisplay = xirr === 0 ? '0.00%' : (xirr > 0 ? '+' : '') + (xirr * 100).toFixed(2) + '%';
@@ -377,6 +394,14 @@ const updateDashboard = () => {
     document.getElementById('stat-total-principal').textContent = formatCurrency(gPrincipal);
     document.getElementById('stat-realized-interest').textContent = formatCurrency(totalRealizedInterest);
     document.getElementById('stat-total-expected').textContent = formatCurrency(expected);
+    
+    // Net Worth (Mirroring Lending)
+    const nwEl = document.getElementById('stat-net-worth');
+    if (nwEl) nwEl.textContent = formatCurrency(expected);
+    const naEl = document.getElementById('stat-total-assets');
+    if (naEl) naEl.textContent = formatCurrency(expected);
+    const nlEl = document.getElementById('stat-lending-assets');
+    if (nlEl) nlEl.textContent = formatCurrency(expected);
 
     // Dashboard date subtitle
     const dateEl = document.getElementById('dashboard-date');
@@ -400,6 +425,43 @@ const updateDashboard = () => {
 
     renderCharts(borrowersData, activeData, gPrincipal, gInterest);
     renderRecentTransactions(activeData);
+    renderDashboardBorrowers(borrowersData, activeData);
+};
+
+const renderDashboardBorrowers = (borrowersData, activeData) => {
+    const list = document.getElementById('dashboard-borrowers-list');
+    if (!list) return;
+    list.innerHTML = '';
+    
+    const sorted = [...borrowersData].sort((a, b) => b.balance - a.balance).slice(0, 5);
+    
+    if (sorted.length === 0) {
+        list.innerHTML = `<div class="empty" style="padding:16px 0"><div class="empty-sub">No active borrowers</div></div>`;
+        return;
+    }
+    
+    sorted.forEach(b => {
+        const fullB = activeData.borrowers.find(x => x.name === b.name);
+        const initials = b.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
+        
+        const el = document.createElement('div');
+        el.className = 'borrower-tile';
+        el.style.marginBottom = '8px';
+        el.onclick = () => { switchView('borrowers'); setTimeout(() => openLedger(fullB.id), 50); };
+        el.innerHTML = `
+            <div class="b-avatar status-active" style="width:36px;height:36px;border-radius:12px;font-size:13px">
+                <div class="b-avatar-inner">${initials}</div>
+            </div>
+            <div class="b-main">
+                <div class="b-name" style="font-size:14px">${escapeHtml(b.name)}</div>
+            </div>
+            <div class="b-right">
+                <div class="b-due num" style="font-size:15px">${formatCurrency(b.balance)}</div>
+            </div>
+            <i class="ph ph-caret-right b-chevron"></i>
+        `;
+        list.appendChild(el);
+    });
 };
 
 // ── Charts ───────────────────────────────────────────────
@@ -577,6 +639,16 @@ const renderBorrowersList = () => {
         ...b, stats: getBorrowerStats(b.id, activeData)
     }));
 
+    // Filter by Tab
+    const activeTab = document.querySelector('#borrower-filter-tabs .active')?.dataset.filter || 'all';
+    if (activeTab === 'active') {
+        borrowers = borrowers.filter(b => b.stats.balance > 0);
+    } else if (activeTab === 'paid') {
+        borrowers = borrowers.filter(b => b.stats.balance === 0 && b.stats.totalLoans > 0);
+    } else if (activeTab === 'pending') {
+        borrowers = borrowers.filter(b => b.stats.totalLoans === 0);
+    }
+
     // Search
     const q = (document.getElementById('input-search-borrowers')?.value || '').trim().toLowerCase();
     if (q) borrowers = borrowers.filter(b => b.name.toLowerCase().includes(q));
@@ -586,8 +658,8 @@ const renderBorrowersList = () => {
     borrowers.sort((a, b) => {
         if (sortVal === 'name_asc')   return a.name.localeCompare(b.name);
         if (sortVal === 'name_desc')  return b.name.localeCompare(a.name);
-        if (sortVal === 'date_desc')  return new Date(b.stats.startDate) - new Date(a.stats.startDate);
-        if (sortVal === 'date_asc')   return new Date(a.stats.startDate) - new Date(b.stats.startDate);
+        if (sortVal === 'date_desc')  return new Date(b.stats.startDate || 0) - new Date(a.stats.startDate || 0);
+        if (sortVal === 'date_asc')   return new Date(a.stats.startDate || 0) - new Date(b.stats.startDate || 0);
         if (sortVal === 'value_desc') return b.stats.balance - a.stats.balance;
         if (sortVal === 'value_asc')  return a.stats.balance - b.stats.balance;
         return 0;
@@ -623,7 +695,7 @@ const renderBorrowersList = () => {
                 <div class="b-name">${escapeHtml(b.name)}
                     ${hasActive ? '<span class="b-status-badge active">Active</span>' : ''}
                 </div>
-                <div class="b-meta">${accsStr} · Since ${formatDate(s.startDate)}</div>
+                <div class="b-meta">${accsStr} ${s.totalLoans > s.activeAccounts ? `· ${s.totalLoans - s.activeAccounts} closed` : ''} · Since ${formatDate(s.startDate)}</div>
             </div>
             <div class="b-right">
                 <div class="b-due num">${formatCurrency(s.balance)}</div>
@@ -720,23 +792,21 @@ const renderLedgerView = (borrowerId) => {
                     <div style="flex:1;min-width:0">
                         <div class="acc-title-row">
                             <span class="acc-title">Loan Account</span>
-                            <span class="badge ${isClosed ? 'badge-closed' : 'badge-active'}">${isClosed ? 'Closed' : 'Active'}</span>
+                            ${acc.status === 'active' 
+                                ? `<button class="icon-btn btn-close-acc" data-id="${acc.id}" title="Close Account"><i class="ph ph-lock-key"></i></button>`
+                                : `<span class="badge badge-closed"><i class="ph ph-lock-key"></i>Closed on ${formatDate(acc.closedDate)} · Interest frozen</span>`}
                         </div>
                         <div class="acc-chips">
                             <span class="chip"><i class="ph ph-stack"></i>${escapeHtml(acc.portfolioId)}</span>
                             <span class="chip"><i class="ph ph-calendar"></i>${formatDate(acc.startDate)}</span>
                             <span class="chip"><i class="ph ph-percent"></i>${acc.rate}% p.a.</span>
                             <span class="chip"><i class="ph ph-tag"></i>${escapeHtml(acc.mode)}</span>
-                            ${acc.closedDate ? `<span class="chip" style="color:var(--rose)"><i class="ph ph-lock-key"></i>Closed ${formatDate(acc.closedDate)}</span>` : ''}
                         </div>
                         ${acc.notes ? `<div style="font-size:11px;color:var(--t3);font-style:italic;margin-top:8px">${escapeHtml(acc.notes)}</div>` : ''}
                     </div>
                     <div class="acc-actions">
                         ${!isClosed ? `<button class="btn btn-success btn-add-txn" data-id="${acc.id}"><i class="ph ph-plus"></i>Repayment</button>` : ''}
                         ${!isClosed ? `<button class="icon-btn btn-edit-acc" data-id="${acc.id}" title="Edit"><i class="ph ph-pencil-simple"></i></button>` : ''}
-                        ${!isClosed
-                            ? `<button class="icon-btn btn-close-acc" data-id="${acc.id}" title="Close"><i class="ph ph-lock-key"></i></button>`
-                            : `<button class="icon-btn btn-reopen-acc" data-id="${acc.id}" title="Reopen"><i class="ph ph-lock-key-open"></i></button>`}
                         <button class="icon-btn danger btn-delete-acc" data-id="${acc.id}" title="Delete"><i class="ph ph-trash"></i></button>
                     </div>
                 </div>
@@ -824,15 +894,7 @@ const renderLedgerView = (borrowerId) => {
         };
     });
 
-    container.querySelectorAll('.btn-reopen-acc').forEach(btn => {
-        btn.onclick = (e) => {
-            if (!confirm('Reopen this account? Interest resumes from today.')) return;
-            const acc = state.accounts.find(a => a.id === e.currentTarget.dataset.id);
-            if (acc) { acc.status = 'active'; delete acc.closedDate; autoSave(); }
-            refreshUI();
-        };
-    });
-
+    // Reopen removed
     container.querySelectorAll('.btn-delete-acc').forEach(btn => {
         btn.onclick = (e) => {
             if (!confirm('Delete this account and ALL its transactions? This cannot be undone.')) return;
@@ -1010,9 +1072,26 @@ document.addEventListener('DOMContentLoaded', () => {
     // Portfolio pill in header
     document.getElementById('hdr-portfolio-pill').onclick = openPortfolioPicker;
 
-    // Borrowers search / sort
+    // Borrowers search / sort / filter
+    document.querySelectorAll('#borrower-filter-tabs .filter-tab').forEach(tab => {
+        tab.addEventListener('click', (e) => {
+            document.querySelectorAll('#borrower-filter-tabs .filter-tab').forEach(t => t.classList.remove('active'));
+            e.currentTarget.classList.add('active');
+            renderBorrowersList();
+        });
+    });
+
     document.getElementById('input-search-borrowers')?.addEventListener('input', renderBorrowersList);
     document.getElementById('select-sort-borrowers')?.addEventListener('change', renderBorrowersList);
+    
+    document.getElementById('sort-btn')?.addEventListener('click', () => {
+        const select = document.getElementById('select-sort-borrowers');
+        if (!select) return;
+        const val = select.value;
+        if (val.endsWith('_desc')) select.value = val.replace('_desc', '_asc');
+        else if (val.endsWith('_asc')) select.value = val.replace('_asc', '_desc');
+        renderBorrowersList();
+    });
 
     // Back from ledger
     document.getElementById('btn-back-borrowers').onclick = () => switchView('borrowers');
@@ -1102,7 +1181,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (acc) {
                 const orphaned = state.transactions.filter(t => t.accountId === id && t.date < startDate);
                 if (orphaned.length > 0) {
-                    if (!confirm(`⚠️ ${orphaned.length} transaction(s) are dated before the new start date and will be ignored in calculations. Proceed?`)) return;
+                    return alert(`Cannot change start date to ${formatDate(startDate)}. There are ${orphaned.length} transaction(s) before this date. Please edit or delete them first.`);
                 }
                 Object.assign(acc, { portfolioId, principal, rate, startDate, mode, txnId, notes });
             }
@@ -1129,8 +1208,23 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!date) return alert('Date is required.');
         if (accStart && date < accStart) return alert(`Transaction date cannot be before the loan start date (${formatDate(accStart)}).`);
         if (date > getTodayStr()) return alert('Future dates are not allowed.');
-        if (['repayment','payment_principal','payment_interest'].includes(type) && amount > maxOut + 0.5) {
-            return alert(`Amount (${formatCurrency(amount)}) exceeds outstanding (${formatCurrency(maxOut)}).`);
+        
+        let validateTxns = state.transactions;
+        if (id) {
+            validateTxns = state.transactions.filter(t => t.id !== id);
+        }
+        
+        if (['repayment','payment_principal','payment_interest'].includes(type)) {
+            const acc = state.accounts.find(a => a.id === accountId);
+            const baselineMetrics = calculateAccountMetrics(acc, validateTxns);
+            let maxAllowed = Infinity;
+            if (type === 'payment_principal') maxAllowed = baselineMetrics.outstandingPrincipal;
+            else if (type === 'payment_interest') maxAllowed = baselineMetrics.outstandingInterest;
+            else if (type === 'repayment') maxAllowed = baselineMetrics.outstandingPrincipal + baselineMetrics.outstandingInterest;
+            
+            if (amount > maxAllowed + 0.5) {
+                return alert(`Amount (${formatCurrency(amount)}) exceeds outstanding (${formatCurrency(maxAllowed)}).`);
+            }
         }
 
         if (id) {

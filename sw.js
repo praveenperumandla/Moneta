@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moneta-v1.4';
+const CACHE_NAME = 'moneta-v4.4';
 const STATIC_ASSETS = [
   '/',
   '/index.html',
@@ -42,20 +42,18 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  if (!url.origin.includes(self.location.hostname)) return;
+  const isExternal = ['unpkg.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'].some(domain => url.hostname.includes(domain));
+  if (!url.origin.includes(self.location.hostname) && !isExternal) return;
 
   event.respondWith(
     caches.open(CACHE_NAME).then(cache => {
       return cache.match(event.request).then(cached => {
         const fetchPromise = fetch(event.request).then(response => {
-          if (response && response.status === 200 && response.type === 'basic') {
+          if (response && response.status === 200 && (response.type === 'basic' || response.type === 'cors')) {
             cache.put(event.request, response.clone());
           }
           return response;
-        }).catch(() => cached || new Response('Moneta is offline. Open the app once while online to cache assets.', {
-          status: 503,
-          headers: { 'Content-Type': 'text/plain' }
-        }));
+        }).catch(() => cached || new Response('Moneta is offline.', { status: 503 }));
         return cached || fetchPromise;
       });
     })

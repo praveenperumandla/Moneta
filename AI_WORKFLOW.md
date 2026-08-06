@@ -176,3 +176,6 @@ Do not ask for confirmation unless a decision is required.
 - Engage in unnecessary conversation or back-and-forth
 - Provide commentary instead of results
 - Modify protected areas for convenience
+
+- **Accounting Integrity:** Closed accounts are permanent. Do not build features to 'reopen' them. If a borrower needs a new loan, create a new Account. This prevents retroactive interest miscalculations.
+
