@@ -661,15 +661,62 @@
     </div>
   </div>
 
-</div><!-- /#modal-backdrop -->
+<!-- Update Toast -->
+<div class="update-toast hidden" id="update-toast">
+  <div class="update-toast__content">
+    <i class="ph ph-arrow-circle-up"></i>
+    <span>New version available</span>
+  </div>
+  <button class="update-toast__btn" id="btn-update-app">Tap to update</button>
+</div>
 
 <script src="app.js"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/sw.js')
-        .then(r => console.log('SW registered:', r.scope))
-        .catch(e => console.log('SW failed:', e));
+      navigator.serviceWorker.register('/sw.js').then(reg => {
+        // Check for updates immediately and every 60 seconds
+        reg.update();
+        setInterval(() => reg.update(), 60 * 1000);
+
+        const showUpdateToast = () => {
+          const toast = document.getElementById('update-toast');
+          if (toast) toast.classList.remove('hidden');
+        };
+
+        // New SW waiting to activate
+        if (reg.waiting) {
+          showUpdateToast();
+        }
+
+        // New SW installing
+        reg.addEventListener('updatefound', () => {
+          const newSW = reg.installing;
+          if (!newSW) return;
+          newSW.addEventListener('statechange', () => {
+            if (newSW.state === 'installed' && navigator.serviceWorker.controller) {
+              showUpdateToast();
+            }
+          });
+        });
+
+        // Tap to update
+        document.getElementById('btn-update-app').addEventListener('click', () => {
+          if (reg.waiting) {
+            reg.waiting.postMessage({ type: 'SKIP_WAITING' });
+          }
+          document.getElementById('update-toast').classList.add('hidden');
+        });
+
+        // Reload when new SW takes over
+        let refreshing = false;
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (!refreshing) {
+            refreshing = true;
+            window.location.reload();
+          }
+        });
+      }).catch(e => console.log('SW failed:', e));
     });
   }
 </script>
