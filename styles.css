@@ -58,7 +58,9 @@
 /* ── Base ────────────────────────────────────────────────── */
 html, body { 
   font-size: 16px; 
-  background: var(--bg); 
+  background-color: var(--bg);
+  background-image: linear-gradient(to bottom, var(--bg) 50%, var(--surface-1) 50%);
+  background-attachment: fixed;
   height: 100%;
   margin: 0; padding: 0;
   overflow: hidden;
