@@ -669,7 +669,6 @@ body {
 .tab-bar {
   position: fixed;
   bottom: 0; left: 0; right: 0;
-  height: var(--tab-h);
   padding-bottom: env(safe-area-inset-bottom);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
