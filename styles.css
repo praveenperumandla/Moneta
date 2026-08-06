@@ -76,7 +76,6 @@ body {
   display: flex;
   flex-direction: column;
   height: 100dvh;
-  height: -webkit-fill-available;
   overflow: hidden;
   background: var(--bg);
 }
