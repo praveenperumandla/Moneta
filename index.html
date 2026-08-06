@@ -445,6 +445,11 @@
             <span class="settings-row__label">Moneta</span>
             <span class="settings-row__meta">v4.1</span>
           </div>
+          <button type="button" class="settings-row" id="btn-check-updates">
+            <i class="ph ph-arrows-clockwise settings-row__icon"></i>
+            <span class="settings-row__label">Check for Updates</span>
+            <i class="ph ph-caret-right settings-row__arrow"></i>
+          </button>
         </div>
 
         <input type="file" id="import-file-input" accept=".json" style="display:none" />
@@ -699,6 +704,29 @@
             }
           });
         });
+
+        // Manual check for updates button
+        const checkBtn = document.getElementById('btn-check-updates');
+        if (checkBtn) {
+          checkBtn.addEventListener('click', () => {
+            const label = checkBtn.querySelector('.settings-row__label');
+            const originalText = label.textContent;
+            label.textContent = 'Checking...';
+            reg.update().then(() => {
+              setTimeout(() => {
+                label.textContent = originalText;
+                // If updatefound fired, the toast is shown. If not, it's up to date.
+                // We check if a waiting worker exists or if an installing worker is currently installing.
+                if (!reg.installing && !reg.waiting) {
+                  alert('App is already on the latest version!');
+                }
+              }, 500); // small delay to allow updatefound to trigger
+            }).catch(() => {
+              label.textContent = originalText;
+              alert('Could not check for updates. Check your connection.');
+            });
+          });
+        }
 
         // Tap to update
         document.getElementById('btn-update-app').addEventListener('click', () => {
