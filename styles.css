@@ -475,7 +475,8 @@ input, textarea, select {
   box-sizing: border-box;
   height: calc(var(--tab-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: var(--surface-1);
+  background: var(--bg);
+  background: linear-gradient(to bottom, var(--surface-1) var(--tab-h), var(--bg) var(--tab-h));
   border-top: 1px solid var(--border);
   display: flex;
   align-items: flex-start;
