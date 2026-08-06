@@ -1,48 +1,41 @@
-/* Moneta Design Tokens
-   The stable visual foundation for future UI work. These tokens are not yet
-   mapped to legacy component styles, preserving the current application appearance. */
+/* Moneta Design Tokens (Groww/INDmoney inspired) */
 
 :root {
-  /* --------------------------------------------------------------------------
-     COLOR - semantic roles for content, feedback, and component borders
-     -------------------------------------------------------------------------- */
-  --color-background: #0B0D12;
-  --color-surface: #11141A;
-  --color-card: #171B22;
-  --color-elevated: #1D222B;
-  --color-border: rgba(255, 255, 255, 0.08);
-  --color-primary: #4F8CFF;
-  --color-success: #22C55E;
+  /* COLORS */
+  --color-background: #0D0D0F;
+  --color-surface: #1A1A1F;
+  --color-card: #1A1A1F;
+  --color-elevated: #222228;
+  --color-border: rgba(255, 255, 255, 0.06);
+  --color-primary: #00D09C;
+  --color-success: #00D09C;
   --color-warning: #F59E0B;
-  --color-danger: #EF4444;
-  --color-info: #3B82F6;
-
-  /* TEXT - hierarchy for readable dark interfaces */
-  --color-text-primary: #F0F0F5;
-  --color-text-secondary: rgba(255, 255, 255, 0.55);
-  --color-text-muted: rgba(255, 255, 255, 0.30);
-  --color-text-inverse: #0B0D12;
-
-  /* --------------------------------------------------------------------------
-     ELEVATION - ordered surfaces; use one level per visual layer
-     -------------------------------------------------------------------------- */
-  --surface-0: #0B0D12; /* Application canvas */
-  --surface-1: #11141A; /* Navigation and standard surfaces */
-  --surface-2: #171B22; /* Cards, grouped content, and sheets */
-  --surface-3: #1D222B; /* Raised controls, menus, and dialogs */
-
-  /* OPACITY - consistent state and backdrop treatment */
+  --color-danger: #EB5B3C;
+  --color-info: #4F8CFF;
+  --color-violet: #A78BFA;
+  
+  /* TEXT */
+  --color-text-primary: #F5F5F5;
+  --color-text-secondary: #8E8E93;
+  --color-text-muted: rgba(255, 255, 255, 0.45);
+  --color-text-inverse: #0D0D0F;
+  
+  /* ELEVATION */
+  --surface-0: #0D0D0F;
+  --surface-1: #1A1A1F;
+  --surface-2: #1A1A1F;
+  --surface-3: #222228;
+  
+  /* OPACITY */
   --opacity-disabled: 0.40;
   --opacity-hover: 0.08;
   --opacity-overlay: 0.60;
-
-  /* BLUR - backdrop blur for layered interfaces */
-  --blur-sheet: 4px;
-  --blur-dialog: 10px;
-
-  /* --------------------------------------------------------------------------
-     SPACING - 8-point scale
-     -------------------------------------------------------------------------- */
+  
+  /* BLUR */
+  --blur-sheet: 0px;
+  --blur-dialog: 0px;
+  
+  /* SPACING (8px grid) */
   --space-1: 8px;
   --space-2: 16px;
   --space-3: 24px;
@@ -51,21 +44,19 @@
   --space-6: 48px;
   --space-7: 64px;
   --space-8: 80px;
-
+  
   /* BORDER RADIUS */
   --radius-small: 8px;
-  --radius-medium: 12px;
-  --radius-large: 16px;
-  --radius-xl: 24px;
-
-  /* SHADOWS - use with elevation, not as decorative effects */
-  --shadow-small: 0 1px 3px rgba(0, 0, 0, 0.20);
-  --shadow-medium: 0 8px 24px rgba(0, 0, 0, 0.28);
-  --shadow-large: 0 24px 56px rgba(0, 0, 0, 0.40);
-
-  /* --------------------------------------------------------------------------
-     TYPOGRAPHY - shared family, type scale, and weights
-     -------------------------------------------------------------------------- */
+  --radius-medium: 10px;
+  --radius-large: 12px;
+  --radius-xl: 16px;
+  
+  /* SHADOWS (Minimal/Flat) */
+  --shadow-small: none;
+  --shadow-medium: none;
+  --shadow-large: none;
+  
+  /* TYPOGRAPHY */
   --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
   --font-size-display: 32px;
   --font-size-heading: 24px;
@@ -75,16 +66,16 @@
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
   --font-weight-bold: 700;
-
-  /* ANIMATION - restrained motion for UI state changes */
+  
+  /* ANIMATION (Fast & Subtle) */
   --duration-fast: 150ms;
   --duration-normal: 200ms;
   --duration-slow: 300ms;
   --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
-
-  /* Z-INDEX - fixed layer order for overlays and transient UI */
-  --z-dropdown: 100;
-  --z-overlay: 200;
-  --z-modal: 201;
-  --z-tooltip: 300;
+  
+  /* Z-INDEX */
+  --z-sticky: 50;
+  --z-dropdown: 60;
+  --z-overlay: 100;
+  --z-modal: 200;
 }

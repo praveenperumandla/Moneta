@@ -1,384 +1,677 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="Vault">
-  <meta name="theme-color" content="#0A0A0F">
-  <meta name="description" content="Personal lending tracker with interest accrual and portfolio management">
-
-  <title>Vault · Lending Tracker</title>
-
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json?v=3">
-
-  <!-- Apple Touch Icons (PNG required — SVG not supported by iOS) -->
-  <link rel="apple-touch-icon" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192.png">
-  <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512.png">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=6">
-
-  <!-- Pinned Phosphor Icons + Chart.js versions -->
-  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1"></script>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
-
-  <!-- Service Worker Registration -->
-  <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', () => {
-        navigator.serviceWorker.register('sw.js')
-          .then(reg => console.log('SW registered:', reg.scope))
-          .catch(err => console.log('SW registration failed:', err));
-      });
-    }
-  </script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="Moneta" />
+  <meta name="theme-color" content="#0D0D0F" />
+  <title>Moneta · Wealth Tracker</title>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icons/icon-192.png" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="styles.css" />
+  <!-- Phosphor Icons -->
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
-<div id="app-container">
 
-  <!-- ── Sidebar ─────────────────────────────────────── -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-brand">
-      <div class="brand-mark">
-        <div class="brand-icon"><i class="ph ph-vault" style="color:#fff;font-size:17px"></i></div>
-        <span class="brand-name">Vault</span>
-      </div>
-      <button class="icon-btn mobile-only" id="mobile-close-btn"><i class="ph ph-x"></i></button>
-    </div>
+<!-- ═══════════════════════════════════════════
+     APP SHELL
+═══════════════════════════════════════════ -->
+<div id="app">
 
-    <div class="portfolio-wrap">
-      <div class="section-eyebrow">Portfolio</div>
-      <div class="portfolio-select-wrap">
-        <select id="portfolio-select"></select>
-        <button class="icon-btn" id="btn-manage-portfolios" title="Manage portfolios"><i class="ph ph-gear"></i></button>
-      </div>
-    </div>
-
-    <nav class="main-nav">
-      <button class="nav-btn active" data-view="dashboard"><i class="ph ph-squares-four"></i>Dashboard</button>
-      <button class="nav-btn" data-view="borrowers"><i class="ph ph-users"></i>Borrowers</button>
-    </nav>
-
-    <div class="sidebar-footer">
-      <button class="nav-btn" id="btn-export-data"><i class="ph ph-download-simple"></i>Export JSON</button>
-      <button class="nav-btn" id="btn-import-data"><i class="ph ph-upload-simple"></i>Import JSON</button>
-      <input type="file" id="import-file-input" accept=".json" style="display:none">
-    </div>
-  </aside>
-
-  <!-- ── Main ──────────────────────────────────────────── -->
-  <main class="main-content">
-
-    <!-- Dashboard -->
-    <section id="view-dashboard" class="view-section active">
-      <div class="page-hdr">
-        <div class="page-hdr-row">
-          <div class="flex-align">
-            <button class="icon-btn mobile-only mobile-open-btn" style="margin-right:8px"><i class="ph ph-list"></i></button>
-            <div>
-              <h1 class="page-hdr">Overview</h1>
-              <div class="sub" id="dashboard-date">Loading…</div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <!-- KPIs -->
-      <div class="kpi-grid">
-        <div class="kpi-card" data-accent="sky">
-          <div class="kpi-label">Outstanding Principal</div>
-          <div class="kpi-value num" id="stat-total-principal">₹0</div>
-        </div>
-        <div class="kpi-card" data-accent="amber">
-          <div class="kpi-label">Outstanding Interest</div>
-          <div class="kpi-value num" id="stat-total-interest">₹0</div>
-          <div class="kpi-sub"><span class="live-dot"></span>Live accrual</div>
-        </div>
-        <div class="kpi-card" data-accent="rose">
-          <div class="kpi-label">Total Due (P+I)</div>
-          <div class="kpi-value num" id="stat-total-expected">₹0</div>
-        </div>
-        <div class="kpi-card" data-accent="lime">
-          <div class="kpi-label">Realized Interest</div>
-          <div class="kpi-value num" id="stat-realized-interest">₹0</div>
-        </div>
-        <div class="kpi-card" data-accent="violet">
-          <div class="kpi-label">Active Accounts</div>
-          <div class="kpi-value num" id="stat-active-loans">0</div>
-        </div>
-        <div class="kpi-card" data-accent="teal">
-          <div class="kpi-label">XIRR (Annualised)</div>
-          <div class="kpi-value num" id="stat-xirr">—</div>
-        </div>
-        <div class="kpi-card" data-accent="orange">
-          <div class="kpi-label">Written Off</div>
-          <div class="kpi-value num" id="stat-written-off">₹0</div>
-        </div>
-      </div>
-
-      <!-- Charts -->
-      <div class="charts-row">
-        <div class="chart-block" style="max-width:280px; flex:none;">
-          <h3>Distribution</h3>
-          <div style="position:relative;height:200px"><canvas id="portfolioChart"></canvas></div>
-        </div>
-        <div class="chart-block" style="flex:1; min-width:260px;">
-          <h3>12-Month Projection (no repayments)</h3>
-          <div style="position:relative;height:200px"><canvas id="interestChart"></canvas></div>
-        </div>
-      </div>
-
-      <!-- Recent Transactions -->
-      <div class="block">
-        <div class="block-hdr">
-          <div>
-            <div class="block-title">Recent Transactions</div>
-            <div class="block-sub">Last 15 events across all accounts</div>
-          </div>
-        </div>
-        <div id="recent-txns-list" class="txn-feed"></div>
-      </div>
-    </section>
-
-    <!-- Borrowers -->
-    <section id="view-borrowers" class="view-section">
-      <div class="page-hdr">
-        <div class="page-hdr-row">
-          <div class="flex-align">
-            <button class="icon-btn mobile-only mobile-open-btn" style="margin-right:8px"><i class="ph ph-list"></i></button>
-            <div>
-              <h1 class="page-hdr">Borrowers</h1>
-              <div class="sub">Tap a name to open their ledger</div>
-            </div>
-          </div>
-          <button class="btn btn-primary" id="btn-add-person"><i class="ph ph-user-plus"></i>Add Person</button>
-        </div>
-      </div>
-
-      <div class="controls-bar">
-        <div class="search-wrap">
-          <i class="ph ph-magnifying-glass"></i>
-          <input type="text" id="input-search-borrowers" placeholder="Search borrowers…">
-        </div>
-        <select class="sort-select" id="select-sort-borrowers">
-          <option value="name_asc">Name A→Z</option>
-          <option value="name_desc">Name Z→A</option>
-          <option value="date_desc">Newest first</option>
-          <option value="date_asc">Oldest first</option>
-          <option value="value_desc">Highest balance</option>
-          <option value="value_asc">Lowest balance</option>
-        </select>
-      </div>
-
-      <div id="borrowers-list" class="borrowers-list"></div>
-    </section>
-
-    <!-- Ledger (single borrower) -->
-    <section id="view-ledger" class="view-section">
-      <div class="ledger-hero">
-        <div class="ledger-avatar" id="ledger-avatar">—</div>
-        <div style="flex:1; min-width:0;">
-          <div class="ledger-name">
-            <span id="ledger-person-name">—</span>
-            <button class="icon-btn" id="btn-edit-person" title="Edit"><i class="ph ph-pencil-simple"></i></button>
-          </div>
-          <div class="ledger-stats-line" id="ledger-person-stats">—</div>
-        </div>
-        <div class="ledger-actions">
-          <button class="btn btn-primary" id="btn-add-account"><i class="ph ph-plus"></i>Add Account</button>
-          <button class="icon-btn danger" id="btn-delete-person" title="Delete borrower"><i class="ph ph-trash"></i></button>
-          <button class="icon-btn mobile-only" id="btn-back-borrowers"><i class="ph ph-arrow-left"></i></button>
-        </div>
-      </div>
-
-      <button class="btn btn-ghost" id="btn-back-borrowers-2" style="margin-bottom:16px; display:none;">
-        <i class="ph ph-arrow-left"></i>Back to Borrowers
+  <!-- ── Top Status Bar (iOS-style) ── -->
+  <header class="app-header" id="app-header">
+    <div class="hdr-left">
+      <button class="hdr-icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
+        <i class="ph ph-list"></i>
       </button>
+      <div class="hdr-portfolio-pill" id="hdr-portfolio-pill">
+        <i class="ph ph-stack"></i>
+        <span id="hdr-portfolio-label">All Portfolios</span>
+        <i class="ph ph-caret-down" style="font-size:12px;opacity:0.6"></i>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="hdr-avatar" id="hdr-avatar">JS</div>
+      <button class="hdr-icon-btn" aria-label="Notifications">
+        <i class="ph ph-bell"></i>
+      </button>
+    </div>
+  </header>
 
-      <div id="ledger-accounts-container"></div>
+  <!-- ── Main Scrollable Content ── -->
+  <main class="app-main" id="app-main">
+
+    <!-- ════════════════════════
+         VIEW: HOME (Net Worth)
+    ════════════════════════ -->
+    <section class="view-section active" id="view-home">
+      <div class="view-content">
+        <div class="page-title-block">
+          <div>
+            <h1 class="page-title">Net Worth</h1>
+            <p class="page-subtitle" id="home-date">Your Financial Snapshot</p>
+          </div>
+        </div>
+
+        <!-- Net Worth Hero -->
+        <div class="nw-hero">
+          <div class="nw-hero__label">Total Net Worth</div>
+          <div class="nw-hero__value num" id="stat-net-worth">₹0</div>
+          <div class="nw-hero__meta">
+            <span class="nw-hero__pill nw-hero__pill--up" id="nw-trend-pill">+0.0% this month</span>
+          </div>
+        </div>
+
+        <!-- Assets & Liabilities -->
+        <div class="nw-split">
+          <div class="nw-split__card nw-split__card--assets">
+            <div class="nw-split__icon"><i class="ph ph-arrow-circle-up"></i></div>
+            <div class="nw-split__info">
+              <div class="nw-split__label">Total Assets</div>
+              <div class="nw-split__value num" id="stat-total-assets">₹0</div>
+            </div>
+          </div>
+          <div class="nw-split__card nw-split__card--liabilities">
+            <div class="nw-split__icon"><i class="ph ph-arrow-circle-down"></i></div>
+            <div class="nw-split__info">
+              <div class="nw-split__label">Total Liabilities</div>
+              <div class="nw-split__value num" id="stat-total-liabilities">₹0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Asset Breakdown -->
+        <div class="section-card">
+          <div class="section-card__header">
+            <span class="section-card__title">Assets</span>
+          </div>
+          <div class="nw-module-list" id="home-assets-list">
+            <div class="nw-module-row" onclick="switchView('dashboard')">
+              <div class="nw-module-row__icon" style="background:rgba(34,197,94,0.12);color:#22C55E">
+                <i class="ph ph-hand-coins"></i>
+              </div>
+              <div class="nw-module-row__info">
+                <div class="nw-module-row__name">Lending</div>
+                <div class="nw-module-row__sub">Money lent to borrowers</div>
+              </div>
+              <div class="nw-module-row__value num" id="stat-lending-assets">₹0</div>
+              <i class="ph ph-caret-right nw-module-row__arrow"></i>
+            </div>
+            <div class="nw-module-row nw-module-row--coming">
+              <div class="nw-module-row__icon" style="background:rgba(79,140,255,0.12);color:#4F8CFF">
+                <i class="ph ph-chart-line-up"></i>
+              </div>
+              <div class="nw-module-row__info">
+                <div class="nw-module-row__name">Investments</div>
+                <div class="nw-module-row__sub">Stocks, Mutual Funds, Gold</div>
+              </div>
+              <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+            <div class="nw-module-row nw-module-row--coming">
+              <div class="nw-module-row__icon" style="background:rgba(245,158,11,0.12);color:#F59E0B">
+                <i class="ph ph-bank"></i>
+              </div>
+              <div class="nw-module-row__info">
+                <div class="nw-module-row__name">Fixed Deposits</div>
+                <div class="nw-module-row__sub">Bank & Corporate FDs</div>
+              </div>
+              <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+            <div class="nw-module-row nw-module-row--coming">
+              <div class="nw-module-row__icon" style="background:rgba(167,139,250,0.12);color:#A78BFA">
+                <i class="ph ph-piggy-bank"></i>
+              </div>
+              <div class="nw-module-row__info">
+                <div class="nw-module-row__name">EPF / NPS / PPF</div>
+                <div class="nw-module-row__sub">Retirement savings</div>
+              </div>
+              <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Liabilities (future) -->
+        <div class="section-card">
+          <div class="section-card__header">
+            <span class="section-card__title">Liabilities</span>
+          </div>
+          <div class="nw-module-list">
+            <div class="nw-module-row nw-module-row--coming">
+              <div class="nw-module-row__icon" style="background:rgba(239,68,68,0.12);color:#EF4444">
+                <i class="ph ph-credit-card"></i>
+              </div>
+              <div class="nw-module-row__info">
+                <div class="nw-module-row__name">Loans & Credit</div>
+                <div class="nw-module-row__sub">EMIs, Credit Cards</div>
+              </div>
+              <span class="coming-soon-badge">Coming Soon</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
     </section>
 
-  </main>
-</div>
+    <!-- ════════════════════════
+         VIEW: DASHBOARD
+    ════════════════════════ -->
+    <section class="view-section" id="view-dashboard">
+      <div class="view-content">
 
-<!-- ── Modals ─────────────────────────────────────────────── -->
-<div id="modal-backdrop" class="modal-backdrop hidden">
+        <!-- Page Title -->
+        <div class="page-title-block">
+          <div>
+            <h1 class="page-title">Lending Overview</h1>
+            <p class="page-subtitle" id="dashboard-date">Track &amp; Manage</p>
+          </div>
+        </div>
 
-  <!-- Manage Portfolios -->
-  <div id="modal-manage-portfolios" class="modal hidden">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <span class="modal-title">Manage Portfolios</span>
-      <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
-    </div>
-    <div class="modal-body">
-      <ul id="portfolio-list-edit" style="list-style:none; margin-bottom:16px;"></ul>
-      <div class="form-group flex-align" style="gap:8px;">
-        <input type="text" id="input-new-portfolio" placeholder="New portfolio name (e.g. Work)" style="flex:1;">
-        <button class="btn btn-primary" id="btn-create-portfolio">Add</button>
+        <!-- KPI Pair Row -->
+        <div class="kpi-pair-row">
+          <div class="kpi-tile kpi-tile--principal">
+            <div class="kpi-tile__label">Outstanding Principal</div>
+            <div class="kpi-tile__value num" id="stat-total-principal">₹0</div>
+            <div class="kpi-tile__trend" id="stat-principal-trend">
+              <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +3.1%</span>
+            </div>
+            <div class="kpi-tile__sparkline">
+              <svg viewBox="0 0 80 32" preserveAspectRatio="none" class="sparkline sparkline--blue">
+                <polyline points="0,28 16,22 32,20 48,14 64,10 80,4" />
+              </svg>
+            </div>
+          </div>
+          <div class="kpi-tile kpi-tile--interest">
+            <div class="kpi-tile__label">Realized Interest</div>
+            <div class="kpi-tile__value num" id="stat-realized-interest">₹0</div>
+            <div class="kpi-tile__trend">
+              <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +14.2%</span>
+            </div>
+            <div class="kpi-tile__sparkline">
+              <svg viewBox="0 0 80 32" preserveAspectRatio="none" class="sparkline sparkline--green">
+                <polyline points="0,30 16,26 32,22 48,18 64,12 80,6" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Portfolio Trend Chart Block -->
+        <div class="chart-card">
+          <div class="chart-card__header">
+            <div>
+              <div class="chart-card__title">Portfolio Trend</div>
+              <div class="chart-card__sub">Principal vs Interest</div>
+            </div>
+            <div class="chart-card__value-block">
+              <div class="chart-card__value-label">Portfolio Value</div>
+              <div class="chart-card__value num" id="stat-total-expected">₹0</div>
+            </div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-dot legend-dot--blue"></span><span class="legend-label">Outstanding</span>
+            <span class="legend-dot legend-dot--green" style="margin-left:14px"></span><span class="legend-label">Interest</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="interestChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Recent Transactions -->
+        <div class="section-card">
+          <div class="section-card__header">
+            <span class="section-card__title">Recent Transactions</span>
+            <button class="link-btn" onclick="switchView('transactions')">See all</button>
+          </div>
+          <div id="recent-txns-list"></div>
+        </div>
+
+        <!-- Borrowers -->
+        <div class="section-card">
+          <div class="section-card__header">
+            <span class="section-card__title">Borrowers</span>
+            <button class="link-btn" onclick="switchView('borrowers')">See all</button>
+          </div>
+          <div id="dashboard-borrowers-list"></div>
+        </div>
+
       </div>
+    </section>
+
+    <!-- ════════════════════════
+         VIEW: BORROWERS
+    ════════════════════════ -->
+    <section class="view-section" id="view-borrowers">
+      <div class="view-content">
+        <div class="page-title-block page-title-block--row">
+          <div>
+            <h1 class="page-title">Borrowers</h1>
+            <p class="page-subtitle" id="borrowers-subtitle">Manage Active Profiles</p>
+          </div>
+          <button class="fab-inline" id="btn-add-person" aria-label="Add person">
+            <i class="ph ph-plus"></i>
+          </button>
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="filter-tabs" id="borrower-filter-tabs">
+          <button class="filter-tab active" data-filter="all">Active</button>
+          <button class="filter-tab" data-filter="pending">Pending</button>
+          <button class="filter-tab" data-filter="paid">Paid</button>
+        </div>
+
+        <!-- Search + Sort Row -->
+        <div class="search-sort-row">
+          <div class="search-wrap">
+            <i class="ph ph-magnifying-glass"></i>
+            <input type="search" id="input-search-borrowers" placeholder="Search borrowers by name…" autocomplete="off" />
+          </div>
+          <button class="sort-btn" id="sort-btn" aria-label="Sort">
+            <i class="ph ph-arrows-down-up"></i>
+          </button>
+        </div>
+
+        <!-- Sort label row -->
+        <div class="sort-meta-row">
+          <span class="sort-meta">Sort by: <select id="select-sort-borrowers" class="inline-select">
+            <option value="value_desc">Total Due</option>
+            <option value="name_asc">Name A–Z</option>
+            <option value="name_desc">Name Z–A</option>
+            <option value="date_desc">Newest First</option>
+            <option value="date_asc">Oldest First</option>
+            <option value="value_asc">Smallest First</option>
+          </select></span>
+        </div>
+
+        <div class="borrowers-list" id="borrowers-list"></div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════
+         VIEW: LEDGER (Borrower Profile)
+    ════════════════════════ -->
+    <section class="view-section" id="view-ledger">
+      <div class="view-content">
+
+        <!-- Back row -->
+        <div class="ledger-nav">
+          <button class="back-btn" id="btn-back-borrowers">
+            <i class="ph ph-caret-left"></i> Borrower Profile
+          </button>
+          <button class="hdr-icon-btn" aria-label="Search"><i class="ph ph-magnifying-glass"></i></button>
+        </div>
+
+        <!-- Profile Hero -->
+        <div class="profile-hero">
+          <div class="profile-avatar" id="ledger-avatar">JS</div>
+          <h2 class="profile-name" id="ledger-person-name">—</h2>
+          <div class="profile-id" id="ledger-person-stats">ID: —</div>
+          <div class="profile-outstanding-card">
+            <div class="profile-outstanding-value num" id="ledger-total-outstanding">₹0</div>
+            <div class="profile-outstanding-label">Total Outstanding</div>
+            <div class="profile-outstanding-meta">
+              <span id="ledger-active-loans">Active Loans: —</span>
+              <span class="dot-sep">·</span>
+              <span id="ledger-credit-limit">Credit Limit: —</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Active Loans -->
+        <div class="section-label">ACTIVE LOANS</div>
+        <div id="ledger-accounts-container"></div>
+
+        <!-- Add Loan + Actions -->
+        <div class="ledger-actions-row">
+          <button class="btn btn-primary btn-full" id="btn-add-account" data-borrower-id="">
+            <i class="ph ph-plus-circle"></i> Add Loan Account
+          </button>
+          <div class="ledger-person-actions">
+            <button class="btn btn-ghost" id="btn-edit-person"><i class="ph ph-pencil-simple"></i> Edit</button>
+            <button class="btn btn-danger-ghost" id="btn-delete-person" data-borrower-id=""><i class="ph ph-trash"></i> Delete</button>
+          </div>
+        </div>
+
+      </div>
+    </section>
+
+    <!-- ════════════════════════
+         VIEW: TRANSACTIONS
+    ════════════════════════ -->
+    <section class="view-section" id="view-transactions">
+      <div class="view-content">
+        <div class="page-title-block">
+          <div>
+            <h1 class="page-title">Transactions</h1>
+            <p class="page-subtitle">Full activity log</p>
+          </div>
+        </div>
+        <div class="section-card" style="padding:0">
+          <div id="all-txns-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════
+         VIEW: PORTFOLIO (Pie chart + stats)
+    ════════════════════════ -->
+    <section class="view-section" id="view-portfolio">
+      <div class="view-content">
+        <div class="page-title-block">
+          <div>
+            <h1 class="page-title">Portfolio</h1>
+            <p class="page-subtitle">Breakdown by borrower</p>
+          </div>
+        </div>
+        <!-- Doughnut chart -->
+        <div class="chart-card" style="margin-bottom:16px">
+          <div class="chart-card__header">
+            <div class="chart-card__title">Distribution</div>
+          </div>
+          <div class="chart-wrap chart-wrap--donut">
+            <canvas id="portfolioChart"></canvas>
+          </div>
+        </div>
+        <!-- KPI row -->
+        <div class="kpi-grid">
+          <div class="kpi-card" data-accent="sky">
+            <div class="kpi-label">Total Lent</div>
+            <div class="kpi-value num" id="stat-total-principal-portfolio">₹0</div>
+          </div>
+          <div class="kpi-card" data-accent="teal">
+            <div class="kpi-label">Interest Due</div>
+            <div class="kpi-value num" id="stat-total-interest">₹0</div>
+          </div>
+          <div class="kpi-card" data-accent="amber">
+            <div class="kpi-label">Active Loans</div>
+            <div class="kpi-value num" id="stat-active-loans">0</div>
+          </div>
+          <div class="kpi-card" data-accent="violet">
+            <div class="kpi-label">XIRR</div>
+            <div class="kpi-value num" id="stat-xirr">—</div>
+          </div>
+          <div class="kpi-card" data-accent="rose">
+            <div class="kpi-label">Written Off</div>
+            <div class="kpi-value num" id="stat-written-off">₹0</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ════════════════════════
+         VIEW: SETTINGS
+    ════════════════════════ -->
+    <section class="view-section" id="view-settings">
+      <div class="view-content">
+        <div class="page-title-block">
+          <div>
+            <h1 class="page-title">Settings</h1>
+            <p class="page-subtitle">App Configuration</p>
+          </div>
+        </div>
+
+        <!-- Portfolio manager -->
+        <div class="settings-group">
+          <div class="settings-group__label">Portfolios</div>
+          <button type="button" class="settings-row" id="btn-manage-portfolios">
+            <i class="ph ph-stack settings-row__icon"></i>
+            <span class="settings-row__label">Manage Portfolios</span>
+            <i class="ph ph-caret-right settings-row__arrow"></i>
+          </button>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group__label">Data</div>
+          <button type="button" class="settings-row" id="btn-export-data">
+            <i class="ph ph-export settings-row__icon"></i>
+            <span class="settings-row__label">Export Backup (JSON)</span>
+            <i class="ph ph-caret-right settings-row__arrow"></i>
+          </button>
+          <button type="button" class="settings-row" id="btn-import-data">
+            <i class="ph ph-import settings-row__icon"></i>
+            <span class="settings-row__label">Import Backup</span>
+            <i class="ph ph-caret-right settings-row__arrow"></i>
+          </button>
+        </div>
+
+        <div class="settings-group">
+          <div class="settings-group__label">About</div>
+          <div class="settings-row" style="cursor:default">
+            <i class="ph ph-vault settings-row__icon"></i>
+            <span class="settings-row__label">Moneta</span>
+            <span class="settings-row__meta">v4.0</span>
+          </div>
+        </div>
+
+        <input type="file" id="import-file-input" accept=".json" style="display:none" />
+      </div>
+    </section>
+
+  </main><!-- /#app-main -->
+
+  <!-- ── Bottom Tab Bar ── -->
+  <nav class="tab-bar" id="tab-bar">
+    <button class="tab-btn active" data-view="home" aria-label="Home">
+      <i class="ph ph-house tab-btn__icon"></i>
+      <span class="tab-btn__label">Home</span>
+    </button>
+    <button class="tab-btn" data-view="dashboard" aria-label="Lending">
+      <i class="ph ph-hand-coins tab-btn__icon"></i>
+      <span class="tab-btn__label">Lending</span>
+    </button>
+    <button class="tab-btn" data-view="portfolio" aria-label="Portfolio">
+      <i class="ph ph-chart-pie tab-btn__icon"></i>
+      <span class="tab-btn__label">Portfolio</span>
+    </button>
+    <button class="tab-btn" data-view="transactions" aria-label="Activity">
+      <i class="ph ph-arrow-left-right tab-btn__icon"></i>
+      <span class="tab-btn__label">Activity</span>
+    </button>
+    <button class="tab-btn" data-view="settings" aria-label="Settings">
+      <i class="ph ph-gear tab-btn__icon"></i>
+      <span class="tab-btn__label">Settings</span>
+    </button>
+  </nav>
+
+</div><!-- /#app -->
+
+<!-- ═══════════════════════════════════════════
+     SLIDE-UP PANEL — Portfolio Picker
+═══════════════════════════════════════════ -->
+<div class="modal-backdrop hidden" id="modal-backdrop">
+
+  <!-- Portfolio Picker Panel -->
+  <div class="sheet hidden" id="modal-portfolio-picker">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title">Select Portfolio</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="sheet__body" style="padding-bottom:0">
+      <div class="portfolio-picker-list" id="portfolio-picker-list"></div>
     </div>
   </div>
 
   <!-- Add / Edit Person -->
-  <div id="modal-add-person" class="modal hidden">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <span class="modal-title" id="modal-person-title">Add Person</span>
-      <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+  <div class="sheet hidden" id="modal-add-person">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title" id="modal-person-title">Add Person</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="input-person-id">
+    <div class="sheet__body">
+      <input type="hidden" id="input-person-id" />
       <div class="form-group">
-        <label>Full Name</label>
-        <input type="text" id="input-person-name" placeholder="e.g. Ramesh Kumar" autocapitalize="words">
+        <label for="input-person-name">Full Name</label>
+        <input type="text" id="input-person-name" placeholder="e.g. Ravi Kumar" autocomplete="off" required />
       </div>
       <div class="form-group">
-        <label>Phone (optional)</label>
-        <input type="tel" id="input-person-phone" placeholder="10-digit mobile" inputmode="numeric">
+        <label for="input-person-phone">Phone (optional)</label>
+        <input type="tel" id="input-person-phone" placeholder="+91 98765 43210" autocomplete="off" />
       </div>
       <button class="btn btn-primary btn-full" id="submit-person">Save</button>
     </div>
   </div>
 
   <!-- Add / Edit Loan Account -->
-  <div id="modal-add-account" class="modal hidden">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <span class="modal-title" id="modal-acc-title">Add Loan Account</span>
-      <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+  <div class="sheet hidden" id="modal-add-account">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title" id="modal-acc-title">Add Loan Account</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="input-acc-id">
+    <div class="sheet__body">
+      <input type="hidden" id="input-acc-id" />
       <div class="form-group">
-        <label>Funding Source (Portfolio)</label>
+        <label for="input-acc-portfolio">Portfolio</label>
         <select id="input-acc-portfolio"></select>
       </div>
       <div class="form-row-2">
         <div class="form-group">
-          <label>Principal (₹)</label>
-          <input type="number" id="input-acc-amount" placeholder="0" inputmode="decimal">
+          <label for="input-acc-amount">Principal (₹)</label>
+          <input type="number" id="input-acc-amount" placeholder="0" min="1" step="1" inputmode="numeric" required />
         </div>
         <div class="form-group">
-          <label>Rate (% p.a.)</label>
-          <input type="number" id="input-acc-rate" placeholder="12" inputmode="decimal" step="0.1">
+          <label for="input-acc-rate">Rate (% p.a.)</label>
+          <input type="number" id="input-acc-rate" placeholder="e.g. 12" min="0.01" step="0.01" inputmode="decimal" required />
         </div>
       </div>
       <div class="form-row-2">
         <div class="form-group">
-          <label>Start Date</label>
-          <input type="date" id="input-acc-date">
+          <label for="input-acc-date">Start Date</label>
+          <input type="date" id="input-acc-date" required />
         </div>
         <div class="form-group">
-          <label>Mode</label>
+          <label for="input-acc-mode">Mode</label>
           <select id="input-acc-mode">
             <option>Cash</option>
             <option>UPI</option>
-            <option>NEFT</option>
-            <option>IMPS</option>
-            <option>RTGS</option>
+            <option>Bank Transfer</option>
             <option>Cheque</option>
+            <option>Other</option>
           </select>
         </div>
       </div>
       <div class="form-group">
-        <label>Transaction ID / Ref (optional)</label>
-        <input type="text" id="input-acc-txnid" placeholder="UTR / UPI ref / Cheque no.">
+        <label for="input-acc-txnid">Reference / Txn ID (optional)</label>
+        <input type="text" id="input-acc-txnid" placeholder="e.g. UPI123456" autocomplete="off" />
       </div>
       <div class="form-group">
-        <label>Notes (optional)</label>
-        <textarea id="input-acc-notes" placeholder="Purpose, security, witness…"></textarea>
+        <label for="input-acc-notes">Notes (optional)</label>
+        <textarea id="input-acc-notes" placeholder="Purpose or remarks…"></textarea>
       </div>
       <button class="btn btn-primary btn-full" id="submit-account">Create Account</button>
     </div>
   </div>
 
   <!-- Add / Edit Transaction -->
-  <div id="modal-add-txn" class="modal hidden">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <span class="modal-title" id="modal-txn-title">Add Repayment</span>
-      <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+  <div class="sheet hidden" id="modal-add-txn">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title" id="modal-txn-title">Add Repayment</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
     </div>
-    <div class="modal-body">
-      <input type="hidden" id="input-txn-id">
-      <input type="hidden" id="input-txn-acc-id">
-      <input type="hidden" id="input-txn-max" value="999999999">
-
+    <div class="sheet__body">
+      <input type="hidden" id="input-txn-id" />
+      <input type="hidden" id="input-txn-acc-id" />
+      <input type="hidden" id="input-txn-max" />
       <div class="hint-box" id="txn-outstanding-hint"></div>
-
       <div class="form-group">
-        <label>Type</label>
+        <label for="input-txn-type">Type</label>
         <select id="input-txn-type">
-          <option value="repayment">Repayment — auto-split (interest first, then principal)</option>
-          <option value="payment_principal">Repayment — principal only</option>
-          <option value="payment_interest">Repayment — interest only</option>
-          <option value="writeoff">Write-off principal (reduces balance, stops interest on that amount)</option>
-          <option value="writeoff_interest">Write-off past interest (reduces outstanding only, future interest still accrues)</option>
+          <option value="repayment">Repayment (auto-split P+I)</option>
+          <option value="payment_principal">Principal Only</option>
+          <option value="payment_interest">Interest Only</option>
+          <option value="writeoff">Write-off (Principal)</option>
+          <option value="writeoff_interest">Write-off (Interest)</option>
         </select>
       </div>
       <div class="form-row-2">
         <div class="form-group">
-          <label>Amount (₹)</label>
-          <input type="number" id="input-txn-amount" placeholder="0" inputmode="decimal" min="0.01" step="1">
+          <label for="input-txn-amount">Amount (₹)</label>
+          <input type="number" id="input-txn-amount" placeholder="0" min="1" step="1" inputmode="numeric" required />
         </div>
         <div class="form-group">
-          <label>Date</label>
-          <input type="date" id="input-txn-date">
+          <label for="input-txn-date">Date</label>
+          <input type="date" id="input-txn-date" required />
         </div>
       </div>
       <div class="form-row-2">
         <div class="form-group">
-          <label>Mode</label>
+          <label for="input-txn-mode">Mode</label>
           <select id="input-txn-mode">
             <option>Cash</option>
             <option>UPI</option>
-            <option>NEFT</option>
-            <option>IMPS</option>
-            <option>RTGS</option>
+            <option>Bank Transfer</option>
             <option>Cheque</option>
+            <option>Other</option>
           </select>
         </div>
         <div class="form-group">
-          <label>Transaction ID / Ref</label>
-          <input type="text" id="input-txn-txnid" placeholder="UTR / UPI ref">
+          <label for="input-txn-txnid">Reference ID (opt.)</label>
+          <input type="text" id="input-txn-txnid" placeholder="UPI / Cheque no." autocomplete="off" />
         </div>
       </div>
       <div class="form-group">
-        <label>Notes (optional)</label>
-        <textarea id="input-txn-notes" placeholder="Any notes…"></textarea>
+        <label for="input-txn-notes">Notes (optional)</label>
+        <textarea id="input-txn-notes" placeholder="Remarks…"></textarea>
       </div>
-      <button class="btn btn-primary btn-full" id="submit-txn">Save</button>
+      <button class="btn btn-primary btn-full" id="submit-txn">Add Repayment</button>
+    </div>
+  </div>
+
+  <!-- Manage Portfolios -->
+  <div class="sheet hidden" id="modal-manage-portfolios">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title">Portfolios</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
+    </div>
+    <div class="sheet__body">
+      <ul id="portfolio-list-edit" style="list-style:none;margin-bottom:20px"></ul>
+      <div class="form-row-2">
+        <div class="form-group" style="margin-bottom:0">
+          <input type="text" id="input-new-portfolio" placeholder="New portfolio name…" />
+        </div>
+        <button class="btn btn-primary" id="btn-create-portfolio" style="height:48px">Add</button>
+      </div>
     </div>
   </div>
 
   <!-- Import Confirm -->
-  <div id="modal-import-confirm" class="modal hidden">
-    <div class="modal-handle"></div>
-    <div class="modal-header">
-      <span class="modal-title">Import Data</span>
-      <button class="icon-btn close-modal"><i class="ph ph-x"></i></button>
+  <div class="sheet hidden" id="modal-import-confirm">
+    <div class="sheet__handle"></div>
+    <div class="sheet__header">
+      <span class="sheet__title">Import Backup</span>
+      <button class="close-modal sheet__close" aria-label="Close"><i class="ph ph-x"></i></button>
     </div>
-    <div class="modal-body">
-      <div class="hint-box" id="import-preview" style="display:block; background:var(--warning-bg); border-color:rgba(224,166,74,0.2); color:var(--warning); margin-bottom:16px;"></div>
-      <p style="font-size:13px; color:var(--t2); margin-bottom:20px; line-height:1.6;">
-        This will <strong style="color:var(--danger)">replace all current data</strong> with the imported file. Export your current data first if you want a backup.
+    <div class="sheet__body">
+      <div class="hint-box" id="import-preview" style="display:block;margin-bottom:20px;color:var(--t2)"></div>
+      <p style="font-size:14px;color:var(--t2);margin-bottom:24px;line-height:1.6">
+        This will <strong style="color:var(--rose)">replace all current data</strong>. Your theme and portfolio selection are preserved.
       </p>
-      <div style="display:flex; gap:10px;">
-        <button class="btn btn-ghost" style="flex:1" id="btn-import-cancel">Cancel</button>
-        <button class="btn btn-danger" style="flex:1" id="btn-import-confirm"><i class="ph ph-upload-simple"></i>Replace & Import</button>
+      <div style="display:flex;gap:12px">
+        <button class="btn btn-ghost" id="btn-import-cancel" style="flex:1">Cancel</button>
+        <button class="btn btn-primary" id="btn-import-confirm" style="flex:1">Import</button>
       </div>
     </div>
   </div>
 
-</div>
+</div><!-- /#modal-backdrop -->
 
-<script src="app.js?v=6"></script>
+<script src="app.js"></script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/sw.js')
+        .then(r => console.log('SW registered:', r.scope))
+        .catch(e => console.log('SW failed:', e));
+    });
+  }
+</script>
 </body>
 </html>

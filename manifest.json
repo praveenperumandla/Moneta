@@ -1,12 +1,12 @@
 {
-  "name": "Vault Lending Tracker",
-  "short_name": "Vault",
-  "description": "Personal lending tracker with interest accrual and portfolio management",
+  "name": "Moneta — Personal Wealth Tracker",
+  "short_name": "Moneta",
+  "description": "Personal wealth tracker — lending, investments, and net worth",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#0A0A0F",
-  "theme_color": "#0A0A0F",
-  "orientation": "portrait-primary",
+  "background_color": "#0D0D0F",
+  "theme_color": "#0D0D0F",
+  "orientation": "portrait",
   "icons": [
     {
       "src": "icons/icon-192.png",
