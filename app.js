@@ -280,7 +280,7 @@ const switchView = (viewId) => {
     const tab = document.querySelector(`.tab-btn[data-view="${viewId}"]`);
     if (tab) tab.classList.add('active');
 
-    if (viewId === 'dashboard' || viewId === 'home') currentBorrowerId = null;
+    if (viewId === 'borrowers' || viewId === 'home' || viewId === 'transactions') currentBorrowerId = null;
 
     // Scroll main back to top on tab switch
     document.getElementById('app-main').scrollTop = 0;
@@ -304,7 +304,17 @@ const closeModal = () => {
 // ── Portfolio picker ─────────────────────────────────────
 const renderPortfolioHeader = () => {
     const label = document.getElementById('hdr-portfolio-label');
-    label.textContent = state.activePortfolio === '__ALL__' ? 'All Portfolios' : state.activePortfolio;
+    const icon = document.getElementById('hdr-avatar-icon');
+    if (label && icon) {
+        if (state.activePortfolio === '__ALL__') {
+            label.textContent = 'All Portfolios';
+            icon.innerHTML = '<i class="ph ph-users"></i>';
+        } else {
+            label.textContent = state.activePortfolio;
+            const initials = state.activePortfolio.substring(0, 2).toUpperCase();
+            icon.innerHTML = initials;
+        }
+    }
 };
 
 const openPortfolioPicker = () => {
@@ -324,7 +334,7 @@ const openPortfolioPicker = () => {
             autoSave();
             closeModal();
             renderPortfolioHeader();
-            switchView('home');
+            switchView('borrowers');
         };
         list.appendChild(el);
     });
@@ -390,11 +400,6 @@ const updateDashboard = () => {
     const xirr = calculateXIRR(cashFlows);
     const xirrDisplay = xirr === 0 ? '0.00%' : (xirr > 0 ? '+' : '') + (xirr * 100).toFixed(2) + '%';
 
-    // Dashboard KPI tiles
-    document.getElementById('stat-total-principal').textContent = formatCurrency(gPrincipal);
-    document.getElementById('stat-realized-interest').textContent = formatCurrency(totalRealizedInterest);
-    document.getElementById('stat-total-expected').textContent = formatCurrency(expected);
-    
     // Net Worth (Mirroring Lending)
     const nwEl = document.getElementById('stat-net-worth');
     if (nwEl) nwEl.textContent = formatCurrency(expected);
@@ -403,175 +408,13 @@ const updateDashboard = () => {
     const nlEl = document.getElementById('stat-lending-assets');
     if (nlEl) nlEl.textContent = formatCurrency(expected);
 
-    // Dashboard date subtitle
-    const dateEl = document.getElementById('dashboard-date');
+    // Update Home date
+    const dateEl = document.getElementById('home-date');
     if (dateEl) {
         dateEl.textContent = state.activePortfolio === '__ALL__'
             ? 'Aggregate · as of ' + formatDate(getTodayStr())
             : state.activePortfolio + ' · as of ' + formatDate(getTodayStr());
     }
-
-    // Portfolio view KPIs
-    const pPrincipal = document.getElementById('stat-total-principal-portfolio');
-    if (pPrincipal) pPrincipal.textContent = formatCurrency(gPrincipal);
-    const pInterest = document.getElementById('stat-total-interest');
-    if (pInterest) pInterest.textContent = formatCurrency(gInterest);
-    const pLoans = document.getElementById('stat-active-loans');
-    if (pLoans) pLoans.textContent = activeCount;
-    const pXirr = document.getElementById('stat-xirr');
-    if (pXirr) { pXirr.textContent = xirrDisplay; pXirr.style.color = xirr > 0 ? 'var(--green)' : xirr < 0 ? 'var(--rose)' : ''; }
-    const pWo = document.getElementById('stat-written-off');
-    if (pWo) pWo.textContent = formatCurrency(totalWrittenOff);
-
-    renderCharts(borrowersData, activeData, gPrincipal, gInterest);
-    renderRecentTransactions(activeData);
-    renderDashboardBorrowers(borrowersData, activeData);
-};
-
-const renderDashboardBorrowers = (borrowersData, activeData) => {
-    const list = document.getElementById('dashboard-borrowers-list');
-    if (!list) return;
-    list.innerHTML = '';
-    
-    const sorted = [...borrowersData].sort((a, b) => b.balance - a.balance).slice(0, 5);
-    
-    if (sorted.length === 0) {
-        list.innerHTML = `<div class="empty" style="padding:16px 0"><div class="empty-sub">No active borrowers</div></div>`;
-        return;
-    }
-    
-    sorted.forEach(b => {
-        const fullB = activeData.borrowers.find(x => x.name === b.name);
-        const initials = b.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        
-        const el = document.createElement('div');
-        el.className = 'borrower-tile';
-        el.style.marginBottom = '8px';
-        el.onclick = () => { switchView('borrowers'); setTimeout(() => openLedger(fullB.id), 50); };
-        el.innerHTML = `
-            <div class="b-avatar status-active" style="width:36px;height:36px;border-radius:12px;font-size:13px">
-                <div class="b-avatar-inner">${initials}</div>
-            </div>
-            <div class="b-main">
-                <div class="b-name" style="font-size:14px">${escapeHtml(b.name)}</div>
-            </div>
-            <div class="b-right">
-                <div class="b-due num" style="font-size:15px">${formatCurrency(b.balance)}</div>
-            </div>
-            <i class="ph ph-caret-right b-chevron"></i>
-        `;
-        list.appendChild(el);
-    });
-};
-
-// ── Charts ───────────────────────────────────────────────
-const renderCharts = (borrowersData, activeData, gPrincipal, gInterest) => {
-    // Doughnut — Portfolio view
-    const pieCtx = document.getElementById('portfolioChart');
-    if (charts.pie) charts.pie.destroy();
-    if (borrowersData.length > 0 && pieCtx) {
-        charts.pie = new Chart(pieCtx, {
-            type: 'doughnut',
-            data: {
-                labels: borrowersData.map(b => b.name),
-                datasets: [{
-                    data: borrowersData.map(b => b.balance),
-                    backgroundColor: ['#4F8CFF','#22C55E','#F59E0B','#EF4444','#A78BFA','#2DD4BF','#FB923C'],
-                    borderWidth: 0, hoverOffset: 6
-                }]
-            },
-            options: {
-                responsive: true, maintainAspectRatio: false, cutout: '68%',
-                plugins: {
-                    legend: { display: false },
-                    tooltip: {
-                        callbacks: {
-                            label: (ctx) => ` ${ctx.label}: ${formatCurrency(ctx.parsed)}`
-                        }
-                    }
-                }
-            }
-        });
-    }
-
-    // Line chart — Dashboard
-    const barCtx = document.getElementById('interestChart');
-    if (charts.bar) charts.bar.destroy();
-    if (!barCtx) return;
-
-    let monthlyRate = 0;
-    activeData.accounts.forEach(acc => {
-        if (acc.status !== 'closed') {
-            const m = calculateAccountMetrics(acc, activeData.transactions);
-            monthlyRate += (m.outstandingPrincipal * acc.rate) / 100 / 12;
-        }
-    });
-
-    const months = [0, 3, 6, 9, 12];
-    const labels = ['Now', '3M', '6M', '9M', '12M'];
-    const principalData = months.map(() => gPrincipal);
-    const interestData  = months.map(m => gInterest + monthlyRate * m);
-
-    charts.bar = new Chart(barCtx, {
-        type: 'line',
-        data: {
-            labels,
-            datasets: [
-                {
-                    label: 'Outstanding',
-                    data: principalData,
-                    borderColor: '#4F8CFF',
-                    backgroundColor: 'rgba(79,140,255,0.08)',
-                    borderWidth: 2, tension: 0.4, fill: true,
-                    pointRadius: 3, pointBackgroundColor: '#4F8CFF'
-                },
-                {
-                    label: 'Interest',
-                    data: interestData,
-                    borderColor: '#22C55E',
-                    backgroundColor: 'transparent',
-                    borderWidth: 2, tension: 0.4, fill: false,
-                    pointRadius: 3, pointBackgroundColor: '#22C55E'
-                }
-            ]
-        },
-        options: {
-            responsive: true, maintainAspectRatio: false,
-            interaction: { mode: 'index', intersect: false },
-            scales: {
-                y: {
-                    ticks: {
-                        color: 'rgba(255,255,255,0.3)',
-                        font: { size: 10, family: '-apple-system, sans-serif' },
-                        callback: (v) => {
-                            if (v >= 100000) return '₹' + (v/100000).toFixed(0) + 'L';
-                            if (v >= 1000)   return '₹' + (v/1000).toFixed(0) + 'K';
-                            return '₹' + v;
-                        }
-                    },
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    border: { display: false }
-                },
-                x: {
-                    ticks: { color: 'rgba(255,255,255,0.3)', font: { size: 10 } },
-                    grid: { display: false },
-                    border: { display: false }
-                }
-            },
-            plugins: {
-                legend: { display: false },
-                tooltip: {
-                    backgroundColor: 'rgba(17,20,26,0.95)',
-                    borderColor: 'rgba(255,255,255,0.1)',
-                    borderWidth: 1,
-                    padding: 10,
-                    callbacks: {
-                        label: (ctx) => ` ${ctx.dataset.label}: ${formatCurrency(ctx.parsed.y)}`
-                    }
-                }
-            }
-        }
-    });
 };
 
 // ── Recent Transactions ──────────────────────────────────
@@ -639,15 +482,8 @@ const renderBorrowersList = () => {
         ...b, stats: getBorrowerStats(b.id, activeData)
     }));
 
-    // Filter by Tab
-    const activeTab = document.querySelector('#borrower-filter-tabs .active')?.dataset.filter || 'all';
-    if (activeTab === 'active') {
-        borrowers = borrowers.filter(b => b.stats.balance > 0);
-    } else if (activeTab === 'paid') {
-        borrowers = borrowers.filter(b => b.stats.balance === 0 && b.stats.totalLoans > 0);
-    } else if (activeTab === 'pending') {
-        borrowers = borrowers.filter(b => b.stats.totalLoans === 0);
-    }
+    // Only active borrowers
+    borrowers = borrowers.filter(b => b.stats.balance > 0);
 
     // Search
     const q = (document.getElementById('input-search-borrowers')?.value || '').trim().toLowerCase();
@@ -669,10 +505,24 @@ const renderBorrowersList = () => {
     const subtitle = document.getElementById('borrowers-subtitle');
     if (subtitle) subtitle.textContent = `Manage ${borrowers.length} Active Profile${borrowers.length !== 1 ? 's' : ''}`;
 
+    // Update Summary Cards
+    let totPrin = 0, totInt = 0, totDue = 0;
+    borrowers.forEach(b => {
+        totPrin += b.stats.outstandingPrincipal;
+        totInt += b.stats.outstandingInterest;
+        totDue += b.stats.balance;
+    });
+    const elPrin = document.getElementById('ls-principal');
+    const elInt = document.getElementById('ls-interest');
+    const elTotal = document.getElementById('ls-total');
+    if (elPrin) elPrin.textContent = formatCurrency(totPrin);
+    if (elInt) elInt.textContent = formatCurrency(totInt);
+    if (elTotal) elTotal.textContent = formatCurrency(totDue);
+
     if (borrowers.length === 0) {
         list.innerHTML = `<div class="empty">
             <div class="empty-icon"><i class="ph ph-users"></i></div>
-            <div class="empty-title">No borrowers found</div>
+            <div class="empty-title">No active borrowers</div>
             <div class="empty-sub">Tap + to create your first borrower</div>
         </div>`;
         return;
@@ -680,28 +530,30 @@ const renderBorrowersList = () => {
 
     borrowers.forEach(b => {
         const s = b.stats;
-        const initials = b.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
-        const accsStr = `${s.activeAccounts} active loan${s.activeAccounts !== 1 ? 's' : ''}`;
-        const hasActive = s.activeAccounts > 0;
+        const sinceStr = s.startDate ? formatDate(s.startDate) : 'N/A';
 
         const el = document.createElement('div');
-        el.className = 'borrower-tile';
+        el.className = 'b-row';
         el.onclick = () => openLedger(b.id);
         el.innerHTML = `
-            <div class="b-avatar ${hasActive ? 'status-active' : 'status-closed'}">
-                <div class="b-avatar-inner">${initials}</div>
+            <div class="b-row__left">
+                <div class="b-row__name">${escapeHtml(b.name)}</div>
+                <div class="b-row__since">Since ${sinceStr}</div>
             </div>
-            <div class="b-main">
-                <div class="b-name">${escapeHtml(b.name)}
-                    ${hasActive ? '<span class="b-status-badge active">Active</span>' : ''}
+            <div class="b-row__right">
+                <div class="b-row__col">
+                    <span class="b-row__col-val">${formatCurrency(s.outstandingPrincipal)}</span>
+                    <span class="b-row__col-label">Principal</span>
                 </div>
-                <div class="b-meta">${accsStr} ${s.totalLoans > s.activeAccounts ? `· ${s.totalLoans - s.activeAccounts} closed` : ''} · Since ${formatDate(s.startDate)}</div>
+                <div class="b-row__col">
+                    <span class="b-row__col-val">${formatCurrency(s.outstandingInterest)}</span>
+                    <span class="b-row__col-label">Interest</span>
+                </div>
+                <div class="b-row__col">
+                    <span class="b-row__col-val">${formatCurrency(s.balance)}</span>
+                    <span class="b-row__col-label">Total</span>
+                </div>
             </div>
-            <div class="b-right">
-                <div class="b-due num">${formatCurrency(s.balance)}</div>
-                <div class="b-int"><span class="live-dot"></span>${formatCurrency(s.outstandingInterest)} interest</div>
-            </div>
-            <i class="ph ph-caret-right b-chevron"></i>
         `;
         list.appendChild(el);
     });
@@ -1056,30 +908,15 @@ const importData = (file) => {
 // ── DOMContentLoaded ─────────────────────────────────────
 document.addEventListener('DOMContentLoaded', () => {
     loadData();
-    switchView('home');
-
-    // Header buttons
-    document.getElementById('mobile-menu-btn').onclick = () => {
-        const isSettings = document.getElementById('view-settings')?.classList.contains('active');
-        switchView(isSettings ? 'home' : 'settings');
-    };
+    switchView('borrowers');
 
     // Tab bar
     document.querySelectorAll('.tab-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
     });
 
-    // Portfolio pill in header
-    document.getElementById('hdr-portfolio-pill').onclick = openPortfolioPicker;
-
-    // Borrowers search / sort / filter
-    document.querySelectorAll('#borrower-filter-tabs .filter-tab').forEach(tab => {
-        tab.addEventListener('click', (e) => {
-            document.querySelectorAll('#borrower-filter-tabs .filter-tab').forEach(t => t.classList.remove('active'));
-            e.currentTarget.classList.add('active');
-            renderBorrowersList();
-        });
-    });
+    // Avatar in header
+    document.getElementById('hdr-avatar').onclick = openPortfolioPicker;
 
     document.getElementById('input-search-borrowers')?.addEventListener('input', renderBorrowersList);
     document.getElementById('select-sort-borrowers')?.addEventListener('change', renderBorrowersList);

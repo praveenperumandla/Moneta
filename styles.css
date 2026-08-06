@@ -116,28 +116,18 @@ input, textarea, select {
 }
 .hdr-icon-btn:active { opacity: 0.6; }
 
-.hdr-portfolio-pill {
-  display: flex; align-items: center; gap: 6px;
-  background: var(--surface-2);
-  border: 1px solid var(--border-md);
-  border-radius: 20px;
-  padding: 6px 12px 6px 10px;
-  font-size: 13px; font-weight: 500; color: var(--t1);
-  cursor: pointer; user-select: none;
-  transition: border-color 0.15s;
-}
-.hdr-portfolio-pill i { font-size: 15px; color: var(--blue); }
-.hdr-portfolio-pill:active { border-color: var(--blue); }
-
 .hdr-avatar {
-  width: 32px; height: 32px;
+  width: 36px; height: 36px;
   border-radius: 50%;
   background: linear-gradient(135deg, var(--violet), var(--blue));
   color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 11px; font-weight: 700;
   letter-spacing: 0.03em;
+  cursor: pointer;
+  transition: opacity 0.15s;
 }
+.hdr-avatar:active { opacity: 0.7; }
 
 /* ── Main Scroll Area ───────────────────────────────────── */
 .app-main {
@@ -676,11 +666,10 @@ input, textarea, select {
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  box-sizing: content-box;
-  height: var(--tab-h);
+  box-sizing: border-box;
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
   padding-bottom: env(safe-area-inset-bottom);
-  background: var(--bg);
-  background: linear-gradient(to bottom, var(--surface-1) var(--tab-h), var(--bg) var(--tab-h));
+  background: var(--surface-1);
   border-top: 1px solid var(--border);
   display: flex; align-items: flex-start;
   z-index: 50;
@@ -1091,4 +1080,86 @@ html { -webkit-text-size-adjust: 100%; }
 @keyframes toastSlideUp {
   from { transform: translateY(20px); opacity: 0; }
   to   { transform: translateY(0); opacity: 1; }
+}
+
+/* ── Lending UI Revamp (v5.0) ───────────────────────────── */
+.lending-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.ls-card {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px 8px;
+  text-align: center;
+}
+.ls-label {
+  font-size: 11px;
+  color: var(--t2);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+.ls-value {
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-num);
+}
+.ls-value--amber { color: var(--amber); }
+.ls-value--green { color: var(--green); }
+.ls-value--rose { color: var(--rose); }
+
+.b-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.b-row:active {
+  background: var(--surface-2);
+}
+.b-row__left {
+  flex: 1;
+  min-width: 0;
+  padding-right: 12px;
+}
+.b-row__name {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--t1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-bottom: 2px;
+}
+.b-row__since {
+  font-size: 11px;
+  color: var(--t3);
+}
+.b-row__right {
+  display: grid;
+  grid-template-columns: 80px 80px 85px;
+  gap: 4px;
+  text-align: right;
+  flex-shrink: 0;
+}
+.b-row__col {
+  display: flex;
+  flex-direction: column;
+}
+.b-row__col-val {
+  font-size: 13px;
+  font-family: var(--font-num);
+  font-weight: 600;
+  color: var(--t1);
+}
+.b-row__col-label {
+  font-size: 10px;
+  color: var(--t3);
+  margin-top: 2px;
 }

@@ -27,17 +27,15 @@
   <!-- ── Top Status Bar (iOS-style) ── -->
   <header class="app-header" id="app-header">
     <div class="hdr-left">
-      <button class="hdr-icon-btn mobile-menu-btn" id="mobile-menu-btn" aria-label="Menu">
-        <i class="ph ph-list"></i>
-      </button>
-      <div class="hdr-portfolio-pill" id="hdr-portfolio-pill">
-        <i class="ph ph-stack"></i>
-        <span id="hdr-portfolio-label">All Portfolios</span>
-        <i class="ph ph-caret-down" style="font-size:12px;opacity:0.6"></i>
+      <div class="hdr-portfolio-selector" id="hdr-avatar" style="display:flex;align-items:center;gap:8px;background:var(--surface-2);padding:4px 12px 4px 4px;border-radius:24px;cursor:pointer;">
+        <div style="width:28px;height:28px;background:var(--blue);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;" id="hdr-avatar-icon">
+          <i class="ph ph-users"></i>
+        </div>
+        <span style="font-size:13px;font-weight:600;color:var(--t1);" id="hdr-portfolio-label">All Portfolios</span>
+        <i class="ph ph-caret-down" style="font-size:12px;color:var(--t3);"></i>
       </div>
     </div>
     <div class="hdr-right">
-      <div class="hdr-avatar" id="hdr-avatar" style="display:flex;align-items:center;justify-content:center;"><i class="ph ph-user" style="font-size:16px;"></i></div>
       <button class="hdr-icon-btn" aria-label="Notifications" onclick="alert('Notifications coming soon!')">
         <i class="ph ph-bell"></i>
       </button>
@@ -92,7 +90,7 @@
             <span class="section-card__title">Assets</span>
           </div>
           <div class="nw-module-list" id="home-assets-list">
-            <div class="nw-module-row" onclick="switchView('dashboard')">
+            <div class="nw-module-row" onclick="switchView('borrowers')">
               <div class="nw-module-row__icon" style="background:rgba(34,197,94,0.12);color:#22C55E">
                 <i class="ph ph-hand-coins"></i>
               </div>
@@ -158,89 +156,6 @@
       </div>
     </section>
 
-    <!-- ════════════════════════
-         VIEW: DASHBOARD
-    ════════════════════════ -->
-    <section class="view-section" id="view-dashboard">
-      <div class="view-content">
-
-        <!-- Page Title -->
-        <div class="page-title-block">
-          <div>
-            <h1 class="page-title">Lending Overview</h1>
-            <p class="page-subtitle" id="dashboard-date">Track & Manage</p>
-          </div>
-        </div>
-
-        <!-- KPI Pair Row -->
-        <div class="kpi-pair-row">
-          <div class="kpi-tile kpi-tile--principal">
-            <div class="kpi-tile__label">Outstanding Principal</div>
-            <div class="kpi-tile__value num" id="stat-total-principal">₹0</div>
-            <div class="kpi-tile__trend" id="stat-principal-trend" style="display:none;">
-              <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +3.1%</span>
-            </div>
-            <div class="kpi-tile__sparkline">
-              <svg viewBox="0 0 80 32" preserveAspectRatio="none" class="sparkline sparkline--blue">
-                <polyline points="0,28 16,22 32,20 48,14 64,10 80,4" />
-              </svg>
-            </div>
-          </div>
-          <div class="kpi-tile kpi-tile--interest">
-            <div class="kpi-tile__label">Realized Interest</div>
-            <div class="kpi-tile__value num" id="stat-realized-interest">₹0</div>
-            <div class="kpi-tile__trend" style="display:none;">
-              <span class="trend-badge trend-up"><i class="ph ph-trend-up"></i> +14.2%</span>
-            </div>
-            <div class="kpi-tile__sparkline">
-              <svg viewBox="0 0 80 32" preserveAspectRatio="none" class="sparkline sparkline--green">
-                <polyline points="0,30 16,26 32,22 48,18 64,12 80,6" />
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <!-- Portfolio Trend Chart Block -->
-        <div class="chart-card">
-          <div class="chart-card__header">
-            <div>
-              <div class="chart-card__title">Portfolio Trend</div>
-              <div class="chart-card__sub">Principal vs Interest</div>
-            </div>
-            <div class="chart-card__value-block">
-              <div class="chart-card__value-label">Portfolio Value</div>
-              <div class="chart-card__value num" id="stat-total-expected">₹0</div>
-            </div>
-          </div>
-          <div class="chart-legend">
-            <span class="legend-dot legend-dot--blue"></span><span class="legend-label">Outstanding</span>
-            <span class="legend-dot legend-dot--green" style="margin-left:14px"></span><span class="legend-label">Interest</span>
-          </div>
-          <div class="chart-wrap">
-            <canvas id="interestChart"></canvas>
-          </div>
-        </div>
-
-        <!-- Recent Transactions -->
-        <div class="section-card">
-          <div class="section-card__header">
-            <span class="section-card__title">Recent Transactions</span>
-            <button class="link-btn" onclick="switchView('transactions')">See all</button>
-          </div>
-          <div id="recent-txns-list"></div>
-        </div>
-
-        <!-- Borrowers -->
-        <div class="section-card">
-          <div class="section-card__header">
-            <span class="section-card__title">Borrowers</span>
-            <button class="link-btn" onclick="switchView('borrowers')">See all</button>
-          </div>
-          <div id="dashboard-borrowers-list"></div>
-        </div>
-
-      </div>
-    </section>
 
     <!-- ════════════════════════
          VIEW: BORROWERS
@@ -249,7 +164,7 @@
       <div class="view-content">
         <div class="page-title-block page-title-block--row">
           <div>
-            <h1 class="page-title">Borrowers</h1>
+            <h1 class="page-title">Lending</h1>
             <p class="page-subtitle" id="borrowers-subtitle">Manage Active Profiles</p>
           </div>
           <button class="fab-inline" id="btn-add-person" aria-label="Add person">
@@ -257,11 +172,20 @@
           </button>
         </div>
 
-        <!-- Filter Tabs -->
-        <div class="filter-tabs" id="borrower-filter-tabs">
-          <button class="filter-tab active" data-filter="all">Active</button>
-          <button class="filter-tab" data-filter="pending">Pending</button>
-          <button class="filter-tab" data-filter="paid">Paid</button>
+        <!-- Lending Summary Cards -->
+        <div class="lending-summary">
+          <div class="ls-card">
+            <div class="ls-label">Principal</div>
+            <div class="ls-value ls-value--amber" id="ls-principal">₹0</div>
+          </div>
+          <div class="ls-card">
+            <div class="ls-label">Interest</div>
+            <div class="ls-value ls-value--green" id="ls-interest">₹0</div>
+          </div>
+          <div class="ls-card">
+            <div class="ls-label">Total Due</div>
+            <div class="ls-value ls-value--rose" id="ls-total">₹0</div>
+          </div>
         </div>
 
         <!-- Search + Sort Row -->
@@ -356,51 +280,6 @@
       </div>
     </section>
 
-    <!-- ════════════════════════
-         VIEW: PORTFOLIO (Pie chart + stats)
-    ════════════════════════ -->
-    <section class="view-section" id="view-portfolio">
-      <div class="view-content">
-        <div class="page-title-block">
-          <div>
-            <h1 class="page-title">Portfolio</h1>
-            <p class="page-subtitle">Breakdown by borrower</p>
-          </div>
-        </div>
-        <!-- Doughnut chart -->
-        <div class="chart-card" style="margin-bottom:16px">
-          <div class="chart-card__header">
-            <div class="chart-card__title">Distribution</div>
-          </div>
-          <div class="chart-wrap chart-wrap--donut">
-            <canvas id="portfolioChart"></canvas>
-          </div>
-        </div>
-        <!-- KPI row -->
-        <div class="kpi-grid">
-          <div class="kpi-card" data-accent="sky">
-            <div class="kpi-label">Total Lent</div>
-            <div class="kpi-value num" id="stat-total-principal-portfolio">₹0</div>
-          </div>
-          <div class="kpi-card" data-accent="teal">
-            <div class="kpi-label">Interest Due</div>
-            <div class="kpi-value num" id="stat-total-interest">₹0</div>
-          </div>
-          <div class="kpi-card" data-accent="amber">
-            <div class="kpi-label">Active Loans</div>
-            <div class="kpi-value num" id="stat-active-loans">0</div>
-          </div>
-          <div class="kpi-card" data-accent="violet">
-            <div class="kpi-label">XIRR</div>
-            <div class="kpi-value num" id="stat-xirr">—</div>
-          </div>
-          <div class="kpi-card" data-accent="rose">
-            <div class="kpi-label">Written Off</div>
-            <div class="kpi-value num" id="stat-written-off">₹0</div>
-          </div>
-        </div>
-      </div>
-    </section>
 
     <!-- ════════════════════════
          VIEW: SETTINGS
@@ -460,21 +339,17 @@
 
   <!-- ── Bottom Tab Bar ── -->
   <nav class="tab-bar" id="tab-bar">
-    <button class="tab-btn active" data-view="home" aria-label="Home">
-      <i class="ph ph-house tab-btn__icon"></i>
-      <span class="tab-btn__label">Home</span>
-    </button>
-    <button class="tab-btn" data-view="dashboard" aria-label="Lending">
+    <button class="tab-btn active" data-view="borrowers" aria-label="Lending">
       <i class="ph ph-hand-coins tab-btn__icon"></i>
       <span class="tab-btn__label">Lending</span>
-    </button>
-    <button class="tab-btn" data-view="portfolio" aria-label="Portfolio">
-      <i class="ph ph-chart-pie tab-btn__icon"></i>
-      <span class="tab-btn__label">Portfolio</span>
     </button>
     <button class="tab-btn" data-view="transactions" aria-label="Activity">
       <i class="ph ph-arrow-left-right tab-btn__icon"></i>
       <span class="tab-btn__label">Activity</span>
+    </button>
+    <button class="tab-btn" data-view="home" aria-label="Home">
+      <i class="ph ph-house tab-btn__icon"></i>
+      <span class="tab-btn__label">Home</span>
     </button>
     <button class="tab-btn" data-view="settings" aria-label="Settings">
       <i class="ph ph-gear tab-btn__icon"></i>
