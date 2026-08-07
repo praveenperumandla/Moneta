@@ -282,8 +282,10 @@ const switchView = (viewId) => {
 
     if (viewId === 'borrowers' || viewId === 'home' || viewId === 'transactions') currentBorrowerId = null;
 
-    // Scroll main back to top on tab switch
-    document.getElementById('app-main').scrollTop = 0;
+    // Scroll main back to top on tab switch & reveal tab bar
+    const appMain = document.getElementById('app-main');
+    if (appMain) appMain.scrollTop = 0;
+    document.getElementById('tab-bar')?.classList.remove('tab-bar--hidden');
 
     refreshUI();
 };
@@ -1181,3 +1183,37 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }, { passive: true });
 })();
+
+// ── Auto-hide Tab Bar on Scroll Down / Reveal on Scroll Up ─
+(function initTabBarScrollAutoHide() {
+    const mainEl = document.getElementById('app-main');
+    const tabBar = document.getElementById('tab-bar');
+    if (!mainEl || !tabBar) return;
+
+    let lastScrollTop = 0;
+    const SCROLL_DELTA_THRESHOLD = 8;
+
+    mainEl.addEventListener('scroll', () => {
+        const currentScroll = mainEl.scrollTop;
+        const delta = currentScroll - lastScrollTop;
+
+        // If at or near the top, always show the tab bar
+        if (currentScroll <= 15) {
+            tabBar.classList.remove('tab-bar--hidden');
+            lastScrollTop = currentScroll;
+            return;
+        }
+
+        // Scroll Down (finger drag up / reading further content) -> Hide tab bar
+        if (delta > SCROLL_DELTA_THRESHOLD) {
+            tabBar.classList.add('tab-bar--hidden');
+        }
+        // Scroll Up (finger drag down / returning towards top) -> Show tab bar
+        else if (delta < -SCROLL_DELTA_THRESHOLD) {
+            tabBar.classList.remove('tab-bar--hidden');
+        }
+
+        lastScrollTop = currentScroll;
+    }, { passive: true });
+})();
+

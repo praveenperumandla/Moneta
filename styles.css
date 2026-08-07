@@ -50,10 +50,10 @@
   --r-lg: var(--radius-large, 12px);
   --r-xl: var(--radius-xl, 16px);
 
-  /* Layout — tighter tab bar to match native iOS */
-  --tab-h:    42px;
+  /* Layout — native iOS safe-area aware */
+  --tab-h:    48px;
   --hdr-h:    56px;
-  --safe-area-bottom: 0px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ── Base ────────────────────────────────────────────────── */
@@ -664,17 +664,27 @@ input, textarea, select {
 
 /* ── Bottom Tab Bar ─────────────────────────────────────── */
 .tab-bar {
-  flex-shrink: 0;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
-  /* content-box so height is pure content; padding-bottom adds the home-indicator area outside */
   box-sizing: content-box;
   height: var(--tab-h);
   padding-bottom: var(--safe-area-bottom);
-  background: var(--bg);
+  background: rgba(13, 13, 15, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid var(--border);
   display: flex;
   align-items: center;
-  z-index: 50;
+  z-index: 100;
+  transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+  will-change: transform;
+}
+
+.tab-bar.tab-bar--hidden {
+  transform: translateY(calc(100% + var(--safe-area-bottom)));
 }
 
 .tab-btn {
