@@ -1,13 +1,14 @@
-const CACHE_NAME = 'moneta-v5.1.8';
+const CACHE_NAME = 'moneta-v5.1.9';
+const basePath = self.location.pathname.replace(/\/sw\.js$/, '').replace(/\/$/, '') || '';
 const STATIC_ASSETS = [
-  '/Moneta/',
-  '/Moneta/index.html',
-  '/Moneta/styles.css',
-  '/Moneta/css/tokens.css',
-  '/Moneta/app.js',
-  '/Moneta/manifest.json',
-  '/Moneta/icons/icon-192.png',
-  '/Moneta/icons/icon-512.png'
+  basePath + '/',
+  basePath + '/index.html',
+  basePath + '/styles.css',
+  basePath + '/css/tokens.css',
+  basePath + '/app.js',
+  basePath + '/manifest.json',
+  basePath + '/icons/icon-192.png',
+  basePath + '/icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
