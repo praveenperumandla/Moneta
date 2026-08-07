@@ -86,8 +86,6 @@ input, textarea, select {
   flex-direction: column;
   overflow: hidden;
   background: var(--bg);
-  /* Safe-area handled here — bottom zone shows --bg, not tab-bar color */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
@@ -641,7 +639,6 @@ input, textarea, select {
   background: var(--blue); border: none; color: #fff;
   display: flex; align-items: center; justify-content: center;
   font-size: 20px; cursor: pointer; flex-shrink: 0;
-  
 }
 .fab-inline:active { transform: scale(0.93); }
 
@@ -665,15 +662,14 @@ input, textarea, select {
 .settings-row__meta  { font-size: 13px; color: var(--t3); }
 
 /* ── Bottom Tab Bar ─────────────────────────────────────── */
-/* Safe-area is on #app — tab-bar is just a compact strip */
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  height: var(--tab-h);
+  height: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px));
   background: var(--bg);
   border-top: 1px solid var(--border);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   z-index: 50;
 }
 
@@ -685,7 +681,7 @@ input, textarea, select {
   align-items: center;
   justify-content: center;
   gap: 2px;
-  height: 100%;
+  height: var(--tab-h);
   border: none;
   background: transparent;
   color: var(--t3);
