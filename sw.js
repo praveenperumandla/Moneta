@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moneta-v5.2.1';
+const CACHE_NAME = 'moneta-v5.2.2';
 const basePath = self.location.pathname.replace(/\/sw\.js$/, '').replace(/\/$/, '') || '';
 const STATIC_ASSETS = [
   basePath + '/',
@@ -20,7 +20,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// Listen for skip waiting message from the app
 self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
@@ -47,7 +46,6 @@ self.addEventListener('fetch', (event) => {
   if (!url.origin.includes(self.location.hostname) && !isExternal) return;
 
   if (isExternal) {
-    // Cache-first for external CDN assets (versioned, rarely change)
     event.respondWith(
       caches.open(CACHE_NAME).then(cache =>
         cache.match(event.request).then(cached =>
@@ -61,7 +59,6 @@ self.addEventListener('fetch', (event) => {
       ).catch(() => caches.match(event.request))
     );
   } else {
-    // Network-first for local assets (ensures updates reflect immediately)
     event.respondWith(
       fetch(event.request).then(response => {
         if (response && response.status === 200 && response.type === 'basic') {
