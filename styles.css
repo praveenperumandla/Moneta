@@ -50,10 +50,10 @@
   --r-lg: var(--radius-large, 12px);
   --r-xl: var(--radius-xl, 16px);
 
-  /* Layout — native iOS safe-area aware */
+  /* Layout — compact tab bar */
   --tab-h:    48px;
   --hdr-h:    56px;
-  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-bottom: 0px;
 }
 
 /* ── Base ────────────────────────────────────────────────── */
