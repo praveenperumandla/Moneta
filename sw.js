@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moneta-v5.2.8';
+const CACHE_NAME = 'moneta-v5.2.9';
 const basePath = self.location.pathname.replace(/\/sw\.js$/, '').replace(/\/$/, '') || '';
 const STATIC_ASSETS = [
   basePath + '/',

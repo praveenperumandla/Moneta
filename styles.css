@@ -51,7 +51,7 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout — ultra-slim native toolbar */
-  --tab-h:    32px;
+  --tab-h:    28px;
   --hdr-h:    56px;
   --safe-area-bottom: 0px;
 }
@@ -148,8 +148,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: 20px 16px;
-  padding-bottom: calc(var(--tab-h) + 16px);
+  padding: 16px 14px 4px;
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -266,7 +265,10 @@ input, textarea, select {
   border: 1px solid var(--border);
   border-radius: var(--r-lg);
   overflow: hidden;
-  margin-bottom: 14px;
+  margin-bottom: 10px;
+}
+.section-card:last-child {
+  margin-bottom: 0;
 }
 
 .section-card__header {
