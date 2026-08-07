@@ -150,7 +150,7 @@ input, textarea, select {
 
 .view-content {
   padding: 20px 16px;
-  padding-bottom: 20px;
+  padding-bottom: calc(20px + var(--safe-area-bottom));
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -939,8 +939,7 @@ html { -webkit-text-size-adjust: 100%; }
   height: 32px;
   border-radius: 8px;
   display: flex;
-  align-items: center;
-  justify-content: center;
+  align-items: center; justify-content: center;
   font-size: 16px;
   flex-shrink: 0;
 }
