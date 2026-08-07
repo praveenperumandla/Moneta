@@ -50,8 +50,8 @@
   --r-lg: var(--radius-large, 12px);
   --r-xl: var(--radius-xl, 16px);
 
-  /* Layout */
-  --tab-h:    48px;
+  /* Layout — tighter tab bar to match native iOS */
+  --tab-h:    42px;
   --hdr-h:    56px;
   --safe-area-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
 }
@@ -150,8 +150,7 @@ input, textarea, select {
 
 .view-content {
   padding: 20px 16px;
-  /* Full tab-bar height + breathing room so content never sits under the bar */
-  padding-bottom: calc(var(--tab-h) + var(--safe-area-bottom) + 24px);
+  padding-bottom: calc(var(--tab-h) + var(--safe-area-bottom) + 16px);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -388,12 +387,10 @@ input, textarea, select {
   display: flex; align-items: center; justify-content: center;
   font-size: 15px; font-weight: 700; flex-shrink: 0;
   color: #fff; position: relative;
-  /* Avatar image will be bg-image if set */
   background: var(--surface-3);
   border: 2px solid var(--border-md);
   overflow: hidden;
 }
-/* Status ring */
 .b-avatar.status-active  { border-color: var(--green); }
 .b-avatar.status-late    { border-color: var(--rose); }
 .b-avatar.status-closed  { border-color: var(--t3); }
@@ -670,8 +667,9 @@ input, textarea, select {
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  box-sizing: border-box;
-  height: calc(var(--tab-h) + var(--safe-area-bottom));
+  /* content-box so height is pure content; padding-bottom adds the home-indicator area outside */
+  box-sizing: content-box;
+  height: var(--tab-h);
   padding-bottom: var(--safe-area-bottom);
   background: var(--bg);
   border-top: 1px solid var(--border);
@@ -687,7 +685,7 @@ input, textarea, select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   height: 100%;
   border: none;
   background: transparent;
@@ -706,7 +704,7 @@ input, textarea, select {
 /* Active indicator dot */
 .tab-btn.active::after {
   content: ''; position: absolute;
-  top: 2px; left: 50%; transform: translateX(-50%);
+  top: 1px; left: 50%; transform: translateX(-50%);
   width: 4px; height: 4px; border-radius: 50%;
   background: var(--blue);
 }
@@ -851,13 +849,8 @@ select option, select optgroup {
 .c-muted   { color: var(--t3); }
 
 /* ── iOS specific ───────────────────────────────────────── */
-/* Prevent elastic bounce on overscroll */
 body { overscroll-behavior: none; }
-
-/* Force dark color scheme so native inputs render dark */
 html { color-scheme: dark; }
-
-/* Prevent text size adjustment on rotation */
 html { -webkit-text-size-adjust: 100%; }
 
 /* ── Reduced Motion ─────────────────────────────────────── */
