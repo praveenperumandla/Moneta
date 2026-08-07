@@ -1,13 +1,13 @@
 const CACHE_NAME = 'moneta-v5.1.7';
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/css/tokens.css',
-  '/app.js',
-  '/manifest.json',
-  '/icons/icon-192.png',
-  '/icons/icon-512.png'
+  '/Moneta/',
+  '/Moneta/index.html',
+  '/Moneta/styles.css',
+  '/Moneta/css/tokens.css',
+  '/Moneta/app.js',
+  '/Moneta/manifest.json',
+  '/Moneta/icons/icon-192.png',
+  '/Moneta/icons/icon-512.png'
 ];
 
 self.addEventListener('install', (event) => {
