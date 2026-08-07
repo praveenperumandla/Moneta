@@ -53,7 +53,7 @@
   /* Layout — tighter tab bar to match native iOS */
   --tab-h:    42px;
   --hdr-h:    56px;
-  --safe-area-bottom: min(env(safe-area-inset-bottom, 0px), 34px);
+  --safe-area-bottom: 0px;
 }
 
 /* ── Base ────────────────────────────────────────────────── */
