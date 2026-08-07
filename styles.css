@@ -51,7 +51,7 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout */
-  --tab-h:    54px;
+  --tab-h:    50px;
   --hdr-h:    56px;
 }
 
@@ -667,23 +667,24 @@ input, textarea, select {
   flex-shrink: 0;
   width: 100%;
   box-sizing: border-box;
-  height: calc(var(--tab-h) + env(safe-area-inset-bottom));
-  padding-bottom: env(safe-area-inset-bottom);
+  /* No explicit height — intrinsic sizing from children + padding */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background: var(--surface-1);
   border-top: 1px solid var(--border);
-  display: flex; align-items: flex-start;
+  display: flex; align-items: stretch;
   z-index: 50;
 }
 
 .tab-btn {
+  position: relative;
   flex: 1; display: flex; flex-direction: column;
   align-items: center; justify-content: center;
-  gap: 4px; padding: 6px 4px 0;
+  gap: 2px; padding: 6px 4px 4px;
   border: none; background: transparent;
   color: var(--t3); font-family: var(--font);
   cursor: pointer; transition: color 0.18s;
   -webkit-tap-highlight-color: transparent;
-  height: var(--tab-h);
+  min-height: var(--tab-h);
 }
 .tab-btn.active { color: var(--blue); }
 .tab-btn:active { opacity: 0.7; }
@@ -694,7 +695,7 @@ input, textarea, select {
 /* Active indicator dot */
 .tab-btn.active::after {
   content: ''; position: absolute;
-  bottom: calc(var(--tab-h) - 2px);
+  top: 2px; left: 50%; transform: translateX(-50%);
   width: 4px; height: 4px; border-radius: 50%;
   background: var(--blue);
 }
@@ -1037,7 +1038,7 @@ html { -webkit-text-size-adjust: 100%; }
 /* ── Update Toast ──────────────────────────────────────── */
 .update-toast {
   position: fixed;
-  bottom: calc(68px + env(safe-area-inset-bottom));
+  bottom: calc(64px + env(safe-area-inset-bottom));
   left: 16px;
   right: 16px;
   background: var(--surface-2);
