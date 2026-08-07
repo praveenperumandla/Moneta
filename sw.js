@@ -1,4 +1,4 @@
-const CACHE_NAME = 'moneta-v5.1.5';
+const CACHE_NAME = 'moneta-v5.1.6';
 const STATIC_ASSETS = [
   '/',
   '/index.html',

@@ -146,7 +146,7 @@ input, textarea, select {
 
 .view-content {
   padding: 20px 16px;
-  padding-bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 20px);
+  padding-bottom: 20px;
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
