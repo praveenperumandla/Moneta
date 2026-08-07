@@ -51,7 +51,7 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout */
-  --tab-h:    50px;
+  --tab-h:    48px;
   --hdr-h:    56px;
 }
 
@@ -86,6 +86,8 @@ input, textarea, select {
   flex-direction: column;
   overflow: hidden;
   background: var(--bg);
+  /* Safe-area handled here — bottom zone shows --bg, not tab-bar color */
+  padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ── Top Header ─────────────────────────────────────────── */
@@ -663,33 +665,39 @@ input, textarea, select {
 .settings-row__meta  { font-size: 13px; color: var(--t3); }
 
 /* ── Bottom Tab Bar ─────────────────────────────────────── */
+/* Safe-area is on #app — tab-bar is just a compact strip */
 .tab-bar {
   flex-shrink: 0;
   width: 100%;
-  box-sizing: border-box;
-  /* No explicit height — intrinsic sizing from children + padding */
-  padding-bottom: env(safe-area-inset-bottom, 0px);
-  background: var(--surface-1);
+  height: var(--tab-h);
+  background: var(--bg);
   border-top: 1px solid var(--border);
-  display: flex; align-items: stretch;
+  display: flex;
+  align-items: center;
   z-index: 50;
 }
 
 .tab-btn {
   position: relative;
-  flex: 1; display: flex; flex-direction: column;
-  align-items: center; justify-content: center;
-  gap: 2px; padding: 6px 4px 4px;
-  border: none; background: transparent;
-  color: var(--t3); font-family: var(--font);
-  cursor: pointer; transition: color 0.18s;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  height: 100%;
+  border: none;
+  background: transparent;
+  color: var(--t3);
+  font-family: var(--font);
+  cursor: pointer;
+  transition: color 0.18s;
   -webkit-tap-highlight-color: transparent;
-  min-height: var(--tab-h);
 }
 .tab-btn.active { color: var(--blue); }
 .tab-btn:active { opacity: 0.7; }
 
-.tab-btn__icon { font-size: 22px; line-height: 1; }
+.tab-btn__icon { font-size: 20px; line-height: 1; }
 .tab-btn__label { font-size: 10px; font-weight: 500; letter-spacing: 0.01em; }
 
 /* Active indicator dot */
@@ -1038,7 +1046,7 @@ html { -webkit-text-size-adjust: 100%; }
 /* ── Update Toast ──────────────────────────────────────── */
 .update-toast {
   position: fixed;
-  bottom: calc(64px + env(safe-area-inset-bottom));
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom) + 12px);
   left: 16px;
   right: 16px;
   background: var(--surface-2);
