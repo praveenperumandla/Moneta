@@ -221,44 +221,61 @@
     <section class="view-section" id="view-ledger">
       <div class="view-content">
 
-        <!-- Back row -->
+        <!-- Top Navigation -->
         <div class="ledger-nav">
           <button class="back-btn" id="btn-back-borrowers">
-            <i class="ph ph-caret-left"></i> Borrower Profile
+            <i class="ph ph-caret-left"></i> <span id="ledger-nav-title">Borrower Profile</span>
           </button>
-          <button class="hdr-icon-btn" aria-label="Search" onclick="alert('Search coming soon!')"><i class="ph ph-magnifying-glass"></i></button>
+          <div class="ledger-nav-actions">
+            <button class="hdr-icon-btn" id="btn-edit-person" aria-label="Edit Profile" title="Edit Profile">
+              <i class="ph ph-pencil-simple"></i>
+            </button>
+            <button class="hdr-icon-btn" id="btn-delete-person" data-borrower-id="" aria-label="Delete Profile" title="Delete Profile" style="color:var(--rose)">
+              <i class="ph ph-trash"></i>
+            </button>
+          </div>
         </div>
 
-        <!-- Profile Hero -->
-        <div class="profile-hero">
-          <div class="profile-avatar" id="ledger-avatar" style="display:flex;align-items:center;justify-content:center;"><i class="ph ph-user"></i></div>
-          <h2 class="profile-name" id="ledger-person-name">—</h2>
-          <div class="profile-id" id="ledger-person-stats">ID: —</div>
-          <div class="profile-outstanding-card">
-            <div class="profile-outstanding-value num" id="ledger-total-outstanding">₹0</div>
-            <div class="profile-outstanding-label">Total Outstanding</div>
-            <div class="profile-outstanding-meta">
-              <span id="ledger-active-loans">Active Loans: —</span>
-              <span class="dot-sep">·</span>
-              <span id="ledger-credit-limit">Credit Limit: —</span>
+        <!-- Portfolio Overview Card (matching inspiration design) -->
+        <div class="profile-overview-card">
+          <div class="profile-overview-title" id="ledger-person-name">Portfolio Overview</div>
+          <div class="profile-overview-amt num" id="ledger-total-outstanding">₹0</div>
+          <div class="profile-overview-sub">Total Outstanding</div>
+          
+          <div class="profile-overview-grid">
+            <div class="profile-overview-tile">
+              <i class="ph ph-house"></i>
+              <span class="tile-label">Active Loans:</span>
+              <span class="tile-val" id="ledger-active-loans">0</span>
+            </div>
+            <div class="profile-overview-tile">
+              <i class="ph ph-credit-card"></i>
+              <span class="tile-label">Credit Limit:</span>
+              <span class="tile-val" id="ledger-credit-limit">—</span>
+            </div>
+            <div class="profile-overview-tile">
+              <i class="ph ph-calendar"></i>
+              <span class="tile-label">Start Date:</span>
+              <span class="tile-val" id="ledger-next-repayment">—</span>
+            </div>
+            <div class="profile-overview-tile">
+              <i class="ph ph-chart-line-up"></i>
+              <span class="tile-label">Interest O/S:</span>
+              <span class="tile-val" id="ledger-interest-outstanding">₹0</span>
             </div>
           </div>
         </div>
 
-        <!-- Active Loans -->
-        <div class="section-label">ACTIVE LOANS</div>
+        <!-- Section Label -->
+        <div class="section-label">ACTIVE LOAN</div>
+
+        <!-- Active Loans Container -->
         <div id="ledger-accounts-container"></div>
 
-        <!-- Add Loan + Actions -->
-        <div class="ledger-actions-row">
-          <button class="btn btn-primary btn-full" id="btn-add-account" data-borrower-id="">
-            <i class="ph ph-plus-circle"></i> Add Loan Account
-          </button>
-          <div class="ledger-person-actions">
-            <button class="btn btn-ghost" id="btn-edit-person"><i class="ph ph-pencil-simple"></i> Edit</button>
-            <button class="btn btn-danger-ghost" id="btn-delete-person" data-borrower-id=""><i class="ph ph-trash"></i> Delete</button>
-          </div>
-        </div>
+        <!-- Add Loan Account CTA -->
+        <button class="btn-blue-add-account" id="btn-add-account" data-borrower-id="">
+          <i class="ph ph-plus-circle"></i> Add New Loan Account
+        </button>
 
       </div>
     </section>
@@ -322,7 +339,7 @@
           <div class="settings-row" style="cursor:default">
             <i class="ph ph-vault settings-row__icon"></i>
             <span class="settings-row__label">Moneta</span>
-            <span class="settings-row__meta">v5.3.0</span>
+            <span class="settings-row__meta">v5.3.1</span>
           </div>
           <button type="button" class="settings-row" id="btn-check-updates">
             <i class="ph ph-arrows-clockwise settings-row__icon"></i>

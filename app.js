@@ -564,21 +564,37 @@ const renderBorrowersList = () => {
 const openLedger = (borrowerId) => {
     currentBorrowerId = borrowerId;
     const activeData = getActiveData();
-    const b = activeData.borrowers.find(x => x.id === borrowerId);
+    const b = state.borrowers.find(x => x.id === borrowerId);
     if (!b) return;
 
     const stats = getBorrowerStats(borrowerId, activeData);
-    const initials = b.name.trim().split(/\s+/).map(w => w[0]).join('').toUpperCase().slice(0, 2);
 
-    document.getElementById('ledger-avatar').textContent = initials;
-    document.getElementById('ledger-person-name').textContent = b.name;
-    document.getElementById('ledger-person-stats').textContent = `ID: B-${borrowerId.slice(-5).toUpperCase()}`;
-    document.getElementById('ledger-total-outstanding').textContent = formatCurrency(stats.balance);
-    document.getElementById('ledger-active-loans').textContent = `Active Loans: ${stats.activeAccounts}`;
-    document.getElementById('ledger-credit-limit').textContent = `Credit Limit: —`;
+    const nameEl = document.getElementById('ledger-person-name');
+    if (nameEl) nameEl.textContent = `${b.name} Overview`;
 
-    document.getElementById('btn-add-account').dataset.borrowerId = borrowerId;
-    document.getElementById('btn-delete-person').dataset.borrowerId = borrowerId;
+    const navTitle = document.getElementById('ledger-nav-title');
+    if (navTitle) navTitle.textContent = b.name;
+
+    const outEl = document.getElementById('ledger-total-outstanding');
+    if (outEl) outEl.textContent = formatCurrency(stats.balance);
+
+    const loansEl = document.getElementById('ledger-active-loans');
+    if (loansEl) loansEl.textContent = `${stats.activeAccounts}`;
+
+    const limitEl = document.getElementById('ledger-credit-limit');
+    if (limitEl) limitEl.textContent = stats.activeAccounts > 0 ? `₹1,00,000` : `—`;
+
+    const nextRepayEl = document.getElementById('ledger-next-repayment');
+    if (nextRepayEl) nextRepayEl.textContent = stats.startDate ? formatDate(stats.startDate) : '—';
+
+    const intOutEl = document.getElementById('ledger-interest-outstanding');
+    if (intOutEl) intOutEl.textContent = formatCurrency(stats.outstandingInterest);
+
+    const btnAddAcc = document.getElementById('btn-add-account');
+    if (btnAddAcc) btnAddAcc.dataset.borrowerId = borrowerId;
+
+    const btnDelPerson = document.getElementById('btn-delete-person');
+    if (btnDelPerson) btnDelPerson.dataset.borrowerId = borrowerId;
 
     // Switch to ledger view (not a tab — handled specially)
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -595,7 +611,12 @@ const renderLedgerView = (borrowerId) => {
 
     const accounts = activeData.accounts.filter(a => a.borrowerId === borrowerId);
     if (accounts.length === 0) {
-        container.innerHTML = `<div class="empty"><div class="empty-sub">No accounts yet — create one below</div></div>`;
+        container.innerHTML = `
+            <div class="empty" style="padding:28px 16px;background:var(--surface-2);border:1px dashed var(--border-md);border-radius:16px;margin-bottom:16px;">
+                <div class="empty-icon"><i class="ph ph-hand-coins" style="color:var(--blue);font-size:36px;"></i></div>
+                <div class="empty-title">No active loan accounts</div>
+                <div class="empty-sub">Tap "+ Add New Loan Account" below to record the first loan</div>
+            </div>`;
         return;
     }
 
@@ -619,12 +640,14 @@ const renderLedgerView = (borrowerId) => {
 
             txnsHtml += `
                 <div class="txn-row">
-                    <div class="txn-icon ${icoClass}"><i class="ph ${icoName}"></i></div>
-                    <div class="txn-body">
-                        <div class="txn-type">${tType}${modeTag}</div>
-                        <div class="txn-date">${formatDate(t.date)}</div>
-                        ${t.txnId ? `<div class="txn-ref">Ref: ${escapeHtml(t.txnId)}</div>` : ''}
-                        ${t.notes ? `<div class="txn-note">${escapeHtml(t.notes)}</div>` : ''}
+                    <div style="display:flex;align-items:center;">
+                        <div class="txn-icon ${icoClass}"><i class="ph ${icoName}"></i></div>
+                        <div class="txn-body">
+                            <div class="txn-type">${tType}${modeTag}</div>
+                            <div class="txn-date">${formatDate(t.date)}</div>
+                            ${t.txnId ? `<div class="txn-ref">Ref: ${escapeHtml(t.txnId)}</div>` : ''}
+                            ${t.notes ? `<div class="txn-note">${escapeHtml(t.notes)}</div>` : ''}
+                        </div>
                     </div>
                     <div class="txn-right">
                         <div class="txn-amt ${amtClass} num">${sign}${formatCurrency(t.amount)}</div>
@@ -640,27 +663,91 @@ const renderLedgerView = (borrowerId) => {
         const card = document.createElement('div');
         card.className = `account-card${isClosed ? ' closed' : ''}`;
         card.innerHTML = `
-            <div class="acc-head">
-                <div class="acc-head-row">
-                    <div style="flex:1;min-width:0">
-                        <div class="acc-title-row">
-                            <span class="acc-title">Loan Account</span>
-                            ${acc.status === 'active' 
-                                ? `<button class="icon-btn btn-close-acc" data-id="${acc.id}" title="Close Account"><i class="ph ph-lock-key"></i></button>`
-                                : `<span class="badge badge-closed"><i class="ph ph-lock-key"></i>Closed on ${formatDate(acc.closedDate)} · Interest frozen</span>`}
-                        </div>
-                        <div class="acc-chips">
-                            <span class="chip"><i class="ph ph-stack"></i>${escapeHtml(acc.portfolioId)}</span>
-                            <span class="chip"><i class="ph ph-calendar"></i>${formatDate(acc.startDate)}</span>
-                            <span class="chip"><i class="ph ph-percent"></i>${acc.rate}% p.a.</span>
-                            <span class="chip"><i class="ph ph-tag"></i>${escapeHtml(acc.mode)}</span>
-                        </div>
-                        ${acc.notes ? `<div style="font-size:11px;color:var(--t3);font-style:italic;margin-top:8px">${escapeHtml(acc.notes)}</div>` : ''}
-                    </div>
-                    <div class="acc-actions">
-                        ${!isClosed ? `<button class="btn btn-success btn-add-txn" data-id="${acc.id}"><i class="ph ph-plus"></i>Repayment</button>` : ''}
-                        ${!isClosed ? `<button class="icon-btn btn-edit-acc" data-id="${acc.id}" title="Edit"><i class="ph ph-pencil-simple"></i></button>` : ''}
-                        <button class="icon-btn danger btn-delete-acc" data-id="${acc.id}" title="Delete"><i class="ph ph-trash"></i></button>
+            <!-- Card Header -->
+            <div class="acc-card-header">
+                <div class="acc-name-title">
+                    <span class="acc-prefix">Account Name:</span>
+                    <span class="acc-name-val">${escapeHtml(acc.portfolioId ? `${acc.portfolioId} Loan` : 'Loan Account')}</span>
+                    ${isClosed ? `<span class="badge badge-closed"><i class="ph ph-lock-key"></i>Closed</span>` : ''}
+                </div>
+                <div class="acc-head-actions">
+                    <button class="icon-btn danger btn-delete-acc" data-id="${acc.id}" title="Delete Account"><i class="ph ph-trash"></i></button>
+                </div>
+            </div>
+
+            <!-- Key-Value Information Table -->
+            <div class="acc-table">
+                <div class="acc-table-row">
+                    <div class="acc-table-label"><i class="ph ph-user"></i> <span>Account Holder:</span></div>
+                    <div class="acc-table-value">${escapeHtml(acc.portfolioId || 'Self')}</div>
+                </div>
+                <div class="acc-table-row">
+                    <div class="acc-table-label"><i class="ph ph-calendar"></i> <span>Start Date:</span></div>
+                    <div class="acc-table-value">${formatDate(acc.startDate)}</div>
+                </div>
+                <div class="acc-table-row">
+                    <div class="acc-table-label"><i class="ph ph-trend-up"></i> <span>Interest Rate:</span></div>
+                    <div class="acc-table-value">${acc.rate}% p.a.</div>
+                </div>
+                <div class="acc-table-row">
+                    <div class="acc-table-label"><i class="ph ph-bank"></i> <span>Payment Account:</span></div>
+                    <div class="acc-table-value">${escapeHtml(acc.mode || 'Cash')}</div>
+                </div>
+                ${acc.notes ? `
+                <div class="acc-table-row acc-table-row--col">
+                    <div class="acc-table-label"><i class="ph ph-note-pencil"></i> <span>Description:</span></div>
+                    <div class="acc-table-desc">${escapeHtml(acc.notes)}</div>
+                </div>` : ''}
+            </div>
+
+            <!-- 3-Column Financial Grid -->
+            <div class="acc-metrics-3col">
+                <div class="acc-metric-box">
+                    <div class="metric-heading"><i class="ph ph-coins" style="color:var(--amber)"></i> O/S PRINCIPAL</div>
+                    <div class="metric-val c-warning num">${formatCurrency(metrics.outstandingPrincipal)}</div>
+                    <div class="metric-subtext">Recovered: ${formatCurrency(metrics.totalGotPrincipal)}</div>
+                </div>
+                <div class="acc-metric-box">
+                    <div class="metric-heading"><i class="ph ph-trend-up" style="color:var(--teal)"></i> O/S INTEREST</div>
+                    <div class="metric-val c-success num">${formatCurrency(metrics.outstandingInterest)}</div>
+                    <div class="metric-subtext">Accrued: ${formatCurrency(metrics.accruedInterest)}</div>
+                </div>
+                <div class="acc-metric-box">
+                    <div class="metric-heading"><i class="ph ph-receipt" style="color:var(--rose)"></i> TOTAL DUE</div>
+                    <div class="metric-val c-danger num">${formatCurrency(metrics.outstandingPrincipal + metrics.outstandingInterest)}</div>
+                    <div class="metric-subtext">Recovered: ${formatCurrency(metrics.totalGot)}</div>
+                </div>
+            </div>
+
+            <!-- Card Actions -->
+            <div class="acc-card-actions">
+                ${!isClosed ? `
+                <button class="btn-primary-repayment btn-add-txn" data-id="${acc.id}">
+                    <i class="ph ph-plus-circle"></i> Add Repayment
+                </button>` : ''}
+
+                <div class="acc-secondary-grid">
+                    ${!isClosed ? `<button class="acc-btn-sub btn-edit-acc" data-id="${acc.id}"><i class="ph ph-pencil-simple"></i> Edit</button>` : ''}
+                    <button class="acc-btn-sub danger btn-delete-acc" data-id="${acc.id}"><i class="ph ph-trash"></i> Delete</button>
+                    ${!isClosed 
+                        ? `<button class="acc-btn-sub btn-close-acc" data-id="${acc.id}"><i class="ph ph-lock-key"></i> Close</button>`
+                        : `<button class="acc-btn-sub" style="opacity:0.6" disabled><i class="ph ph-lock-key"></i> Closed</button>`}
+                </div>
+            </div>
+
+            <!-- Recent Activity Subcard -->
+            <div class="acc-activity-section">
+                <div class="acc-activity-head">
+                    <div class="acc-activity-title"><i class="ph ph-chart-line"></i> <span>Recent Activity</span></div>
+                    <span class="acc-activity-meta">${txns.length} transaction${txns.length !== 1 ? 's' : ''}</span>
+                </div>
+                <div class="txn-list">
+                    ${txnsHtml || '<div class="acc-activity-empty">No recent transactions or activity for this loan.</div>'}
+                </div>
+            </div>
+        `;
+        container.appendChild(card);
+    });n>
                     </div>
                 </div>
             </div>
