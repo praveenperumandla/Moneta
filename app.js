@@ -67,9 +67,11 @@ const getActiveData = () => {
     const pAccounts = state.accounts.filter(a => a.portfolioId === state.activePortfolio);
     const accountIds = pAccounts.map(a => a.id);
     const pTxns = state.transactions.filter(t => accountIds.includes(t.accountId));
-    const visibleBorrowers = state.borrowers.filter(b =>
-        state.accounts.some(a => a.borrowerId === b.id && a.portfolioId === state.activePortfolio)
-    );
+    const visibleBorrowers = state.borrowers.filter(b => {
+        const hasAccountsInCurrent = state.accounts.some(a => a.borrowerId === b.id && a.portfolioId === state.activePortfolio);
+        const hasAccountsInOther = state.accounts.some(a => a.borrowerId === b.id && a.portfolioId !== state.activePortfolio);
+        return hasAccountsInCurrent || !hasAccountsInOther;
+    });
     return { borrowers: visibleBorrowers, accounts: pAccounts, transactions: pTxns };
 };
 
@@ -484,12 +486,9 @@ const renderBorrowersList = () => {
         ...b, stats: getBorrowerStats(b.id, activeData)
     }));
 
-    // Only active borrowers
-    borrowers = borrowers.filter(b => b.stats.balance > 0);
-
     // Search
     const q = (document.getElementById('input-search-borrowers')?.value || '').trim().toLowerCase();
-    if (q) borrowers = borrowers.filter(b => b.name.toLowerCase().includes(q));
+    if (q) borrowers = borrowers.filter(b => b.name.toLowerCase().includes(q) || (b.phone && b.phone.includes(q)));
 
     // Sort
     const sortVal = document.getElementById('select-sort-borrowers')?.value || 'value_desc';
@@ -505,7 +504,7 @@ const renderBorrowersList = () => {
 
     // Subtitle
     const subtitle = document.getElementById('borrowers-subtitle');
-    if (subtitle) subtitle.textContent = `Manage ${borrowers.length} Active Profile${borrowers.length !== 1 ? 's' : ''}`;
+    if (subtitle) subtitle.textContent = `Manage ${borrowers.length} Profile${borrowers.length !== 1 ? 's' : ''}`;
 
     // Update Summary Cards
     let totPrin = 0, totInt = 0, totDue = 0;
@@ -524,15 +523,15 @@ const renderBorrowersList = () => {
     if (borrowers.length === 0) {
         list.innerHTML = `<div class="empty">
             <div class="empty-icon"><i class="ph ph-users"></i></div>
-            <div class="empty-title">No active borrowers</div>
-            <div class="empty-sub">Tap + to create your first borrower</div>
+            <div class="empty-title">No borrowers found</div>
+            <div class="empty-sub">Tap + at top right to add a borrower</div>
         </div>`;
         return;
     }
 
     borrowers.forEach(b => {
         const s = b.stats;
-        const sinceStr = s.startDate ? formatDate(s.startDate) : 'N/A';
+        const sinceStr = s.startDate ? `Since ${formatDate(s.startDate)}` : (b.phone ? `Phone: ${escapeHtml(b.phone)}` : 'New Profile · Tap to add loans');
 
         const el = document.createElement('div');
         el.className = 'b-row';
@@ -540,7 +539,7 @@ const renderBorrowersList = () => {
         el.innerHTML = `
             <div class="b-row__left">
                 <div class="b-row__name">${escapeHtml(b.name)}</div>
-                <div class="b-row__since">Since ${sinceStr}</div>
+                <div class="b-row__since">${sinceStr}</div>
             </div>
             <div class="b-row__right">
                 <div class="b-row__col">
@@ -971,10 +970,19 @@ document.addEventListener('DOMContentLoaded', () => {
         if (id) {
             const b = state.borrowers.find(x => x.id === id);
             if (b) { b.name = name; b.phone = phone; }
+            autoSave();
+            closeModal();
+            refreshUI();
+            if (currentBorrowerId === id) openLedger(id);
         } else {
-            state.borrowers.push({ id: generateId(), name, phone });
+            const newBorrowerId = generateId();
+            state.borrowers.push({ id: newBorrowerId, name, phone });
+            autoSave();
+            closeModal();
+            refreshUI();
+            // Automatically open their ledger profile so the user can immediately add loan accounts
+            openLedger(newBorrowerId);
         }
-        autoSave(); closeModal(); refreshUI();
     };
 
     // Add account button (in ledger)
