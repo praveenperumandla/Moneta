@@ -51,7 +51,7 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout — mobile toolbar */
-  --tab-h:    48px;
+  --tab-h:    40px;
   --hdr-h:    56px;
   --safe-area-bottom: 0px;
 }
@@ -965,10 +965,10 @@ input, textarea, select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   height: 100%;
-  padding-top: 5px;
-  padding-bottom: 3px;
+  padding-top: 3px;
+  padding-bottom: 2px;
   border: none;
   background: transparent;
   color: var(--t3);
@@ -988,7 +988,7 @@ input, textarea, select {
   justify-content: center;
 }
 .tab-btn__label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 500;
   letter-spacing: 0.01em;
   line-height: 1;
@@ -1001,11 +1001,11 @@ input, textarea, select {
   top: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: 24px;
-  height: 2.5px;
-  border-radius: 0 0 3px 3px;
+  width: 20px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
   background: var(--blue);
-  box-shadow: 0 0 8px rgba(79, 140, 255, 0.6);
+  box-shadow: 0 0 6px rgba(79, 140, 255, 0.6);
 }
 
 /* ── Modal / Sheet ──────────────────────────────────────── */
