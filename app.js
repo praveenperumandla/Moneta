@@ -747,30 +747,6 @@ const renderLedgerView = (borrowerId) => {
             </div>
         `;
         container.appendChild(card);
-    });n>
-                    </div>
-                </div>
-            </div>
-            <div class="acc-metrics">
-                <div class="metric-cell">
-                    <div class="metric-label">O/S Principal</div>
-                    <div class="metric-value c-warning num">${formatCurrency(metrics.outstandingPrincipal)}</div>
-                    <div class="metric-sub">Recovered: ${formatCurrency(metrics.totalGotPrincipal)}</div>
-                </div>
-                <div class="metric-cell">
-                    <div class="metric-label">O/S Interest</div>
-                    <div class="metric-value c-success num">${formatCurrency(metrics.outstandingInterest)}</div>
-                    <div class="metric-sub">Accrued: ${formatCurrency(metrics.accruedInterest)}</div>
-                </div>
-                <div class="metric-cell">
-                    <div class="metric-label">Total Due</div>
-                    <div class="metric-value c-danger num">${formatCurrency(metrics.outstandingPrincipal + metrics.outstandingInterest)}</div>
-                    <div class="metric-sub">Recovered: ${formatCurrency(metrics.totalGot)}</div>
-                </div>
-            </div>
-            <div class="txn-list">${txnsHtml || '<div class="empty" style="padding:16px 0"><div class="empty-sub">No transactions yet</div></div>'}</div>
-        `;
-        container.appendChild(card);
     });
 
     // Wire account card buttons
