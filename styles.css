@@ -81,11 +81,13 @@ input, textarea, select {
 
 .num { font-variant-numeric: tabular-nums; letter-spacing: -0.025em; }
 
-/* ── App Shell ──────────────────────────────────────────── */
+/* ── App Shell (Full Viewport Flex Column) ──────────────── */
 #app {
   position: fixed;
   inset: 0;
   width: 100%;
+  height: 100dvh;
+  height: 100%;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -98,8 +100,8 @@ input, textarea, select {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-md);
-  padding-top: env(safe-area-inset-top);
-  height: calc(var(--hdr-h) + env(safe-area-inset-top));
+  padding-top: env(safe-area-inset-top, 0px);
+  height: calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
   flex-shrink: 0;
   background: rgba(9, 9, 11, 0.88);
   backdrop-filter: blur(20px);
@@ -177,6 +179,7 @@ input, textarea, select {
 /* ── Main Scroll Area ───────────────────────────────────── */
 .app-main {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
@@ -190,7 +193,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: var(--space-md) var(--space-md) calc(var(--tab-h) + 12px);
+  padding: var(--space-md) var(--space-md) var(--space-lg);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -969,15 +972,13 @@ input, textarea, select {
 
 /* ── Bottom Tab Bar (Groww-Style 52px Compact Toolbar) ── */
 .tab-bar {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  position: relative;
   width: 100%;
   box-sizing: border-box;
   height: var(--tab-h);
+  flex-shrink: 0;
   padding: 3px 6px 4px;
-  background: rgba(9, 9, 11, 0.94);
+  background: rgba(9, 9, 11, 0.96);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
   border-top: 0.5px solid rgba(255, 255, 255, 0.10);
@@ -985,12 +986,12 @@ input, textarea, select {
   align-items: center;
   justify-content: space-around;
   z-index: 100;
-  transition: transform 0.25s var(--easing-standard);
+  transition: transform 0.25s var(--easing-standard), opacity 0.25s var(--easing-standard);
   will-change: transform;
 }
 
 .tab-bar.tab-bar--hidden {
-  transform: translateY(100%);
+  display: none;
 }
 
 .tab-btn {
