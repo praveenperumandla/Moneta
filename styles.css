@@ -51,8 +51,8 @@
   --r-lg:        var(--radius-large);
   --r-xl:        var(--radius-xl);
 
-  /* Layout — mobile toolbar */
-  --tab-h:       48px;
+  /* Layout — mobile toolbar (row height only; safe-area is padding) */
+  --tab-h:       40px;
   --hdr-h:       46px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
@@ -975,14 +975,14 @@ input, textarea, select {
   right: 0;
   width: 100%;
   box-sizing: border-box;
-  height: calc(var(--tab-h) + var(--safe-area-bottom));
-  padding: 0 0 var(--safe-area-bottom);
+  height: auto;
+  padding: 4px 0 env(safe-area-inset-bottom, 0px);
   background: rgba(9, 9, 11, 0.85);
   backdrop-filter: blur(28px) saturate(190%);
   -webkit-backdrop-filter: blur(28px) saturate(190%);
   border-top: 0.5px solid rgba(255, 255, 255, 0.12);
   display: flex;
-  align-items: flex-start;
+  align-items: stretch;
   justify-content: space-around;
   z-index: 100;
   transition: transform 0.25s var(--easing-standard);
@@ -1000,9 +1000,9 @@ input, textarea, select {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 2px;
+  gap: 1px;
   height: var(--tab-h);
-  padding: 4px 0 2px;
+  padding: 0;
   border: none;
   background: transparent;
   color: var(--t3);
