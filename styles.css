@@ -52,7 +52,7 @@
   --r-xl:        var(--radius-xl);
 
   /* Layout — mobile toolbar */
-  --tab-h:       52px;
+  --tab-h:       40px;
   --hdr-h:       46px;
   --safe-area-bottom: 0px;
 }
@@ -193,7 +193,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: var(--space-md) var(--space-md) var(--space-lg);
+  padding: var(--space-md) var(--space-md) 4px;
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -970,28 +970,30 @@ input, textarea, select {
 .settings-row__arrow { font-size: 16px; color: var(--t3); }
 .settings-row__meta  { font-size: var(--font-size-caption); color: var(--t3); }
 
-/* ── Bottom Tab Bar (Groww / Apple Native Proportions) ──── */
+/* ── Bottom Tab Bar (Slim Compact 40px Layout) ─────────── */
 .tab-bar {
-  position: relative;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
   width: 100%;
   box-sizing: border-box;
-  height: calc(50px + env(safe-area-inset-bottom, 16px));
-  padding: 4px 6px env(safe-area-inset-bottom, 16px);
+  height: var(--tab-h);
+  padding: 0 4px;
   background: rgba(9, 9, 11, 0.96);
-  backdrop-filter: blur(28px) saturate(190%);
-  -webkit-backdrop-filter: blur(28px) saturate(190%);
-  border-top: 0.5px solid rgba(255, 255, 255, 0.10);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-around;
   z-index: 100;
-  flex-shrink: 0;
-  transition: transform 0.25s var(--easing-standard), opacity 0.25s var(--easing-standard);
+  transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1);
   will-change: transform;
 }
 
 .tab-bar.tab-bar--hidden {
-  display: none;
+  transform: translateY(100%);
 }
 
 .tab-btn {
@@ -1000,47 +1002,48 @@ input, textarea, select {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: flex-start;
-  gap: 3px;
-  height: 48px;
-  padding: 0;
+  justify-content: center;
+  gap: 1px;
+  height: 100%;
+  padding-top: 3px;
+  padding-bottom: 2px;
   border: none;
   background: transparent;
   color: var(--t3);
   font-family: var(--font);
   cursor: pointer;
-  transition: color 150ms var(--easing-standard), opacity 150ms var(--easing-standard), transform 150ms var(--easing-standard);
+  transition: color 0.15s, opacity 0.15s;
   -webkit-tap-highlight-color: transparent;
 }
 .tab-btn.active { color: var(--green); }
-.tab-btn:active { transform: scale(0.94); opacity: 0.8; }
+.tab-btn:active { opacity: 0.7; }
 
 .tab-btn__icon {
-  width: 44px;
-  height: 28px;
-  border-radius: 9px;
+  font-size: 22px;
+  line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 22px;
-  line-height: 1;
-  transition: background-color 150ms var(--easing-standard), border-color 150ms var(--easing-standard), color 150ms var(--easing-standard);
 }
-.tab-btn.active .tab-btn__icon {
-  background: rgba(0, 229, 163, 0.16);
-  border: 1px solid rgba(0, 229, 163, 0.32);
-  color: var(--green);
+.tab-btn__label {
+  font-size: 9.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  line-height: 1;
 }
 
-.tab-btn__label {
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  line-height: 1.2;
-}
-.tab-btn.active .tab-btn__label {
-  font-weight: 600;
-  color: var(--green);
+/* Active indicator emerald bar */
+.tab-btn.active::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 2px;
+  border-radius: 0 0 2px 2px;
+  background: var(--green);
+  box-shadow: 0 0 6px rgba(0, 229, 163, 0.6);
 }
 
 /* ── Modal / Sheet (iOS Bottom Sheet) ───────────────────── */

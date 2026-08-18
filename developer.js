@@ -5,7 +5,7 @@
     'iphone-16-pro': { label: 'iPhone 16 Pro', width: 402, height: 874, radius: 56 },
     'ipad-mini': { label: 'iPad Mini', width: 744, height: 1133, radius: 24 }
   };
-  const fallbackVersion = 'v5.4.5';
+  const fallbackVersion = 'v5.4.6';
   const preferencesKey = 'moneta_developer_preferences';
   const root = document.documentElement;
   const deviceSelect = document.getElementById('device-select');
