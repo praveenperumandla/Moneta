@@ -28,7 +28,15 @@ const escapeHtml = (str) => {
 };
 
 // ── Utilities ────────────────────────────────────────────
-const generateId = () => crypto.randomUUID();
+const generateId = () => {
+    if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+        return crypto.randomUUID();
+    }
+    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+        const r = Math.random() * 16 | 0;
+        return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+    });
+};
 
 const parseLocalDate = (str) => {
     if (!str) return new Date();
@@ -204,14 +212,28 @@ const exportData = () => {
 };
 
 // ── Financial Calculations ───────────────────────────────
-const calculateAccountMetrics = (account, allTxns) => {
+const calculateAccountMetrics = (account, allTxns, asOfDate = null) => {
+    if (!account) {
+        return {
+            outstandingPrincipal: 0,
+            accruedInterest: 0,
+            outstandingInterest: 0,
+            totalGotInterest: 0,
+            totalGotPrincipal: 0,
+            totalWrittenOffInterest: 0,
+            totalWrittenOffPrincipal: 0,
+            totalGot: 0,
+            isWrittenOff: false
+        };
+    }
+
     const txns = allTxns
-        .filter(t => t.accountId === account.id)
+        .filter(t => t.accountId === account.id && (!asOfDate || t.date <= asOfDate))
         .sort((a, b) => new Date(a.date) - new Date(b.date));
 
     let currentPrincipal = account.principal;
     let totalInterestAccrued = 0, totalGotInterest = 0, totalGotPrincipal = 0;
-    let totalWrittenOffInterest = 0, isWrittenOff = false;
+    let totalWrittenOffInterest = 0, totalWrittenOffPrincipal = 0, isWrittenOff = false;
     let lastDate = account.startDate;
 
     txns.forEach(txn => {
@@ -221,27 +243,38 @@ const calculateAccountMetrics = (account, allTxns) => {
             totalInterestAccrued += (currentPrincipal * account.rate * days) / (100 * 365);
         }
         if (txn.type === 'payment_principal') {
-            totalGotPrincipal += txn.amount;
-            currentPrincipal = Math.max(0, currentPrincipal - txn.amount);
+            const alloc = Math.min(txn.amount, currentPrincipal);
+            totalGotPrincipal += alloc;
+            currentPrincipal = Math.max(0, currentPrincipal - alloc);
         } else if (txn.type === 'payment_interest') {
-            totalGotInterest += txn.amount;
+            const outI = Math.max(0, totalInterestAccrued - totalGotInterest - totalWrittenOffInterest);
+            const alloc = Math.min(txn.amount, outI);
+            totalGotInterest += alloc;
         } else if (txn.type === 'repayment') {
             const outI = Math.max(0, totalInterestAccrued - totalGotInterest - totalWrittenOffInterest);
             let rem = txn.amount;
             if (rem >= outI) { totalGotInterest += outI; rem -= outI; }
             else { totalGotInterest += rem; rem = 0; }
-            if (rem > 0) { totalGotPrincipal += rem; currentPrincipal = Math.max(0, currentPrincipal - rem); }
+            if (rem > 0) {
+                const alloc = Math.min(rem, currentPrincipal);
+                totalGotPrincipal += alloc;
+                currentPrincipal = Math.max(0, currentPrincipal - alloc);
+            }
         } else if (txn.type === 'writeoff') {
-            currentPrincipal = Math.max(0, currentPrincipal - txn.amount);
+            const alloc = Math.min(txn.amount, currentPrincipal);
+            totalWrittenOffPrincipal += alloc;
+            currentPrincipal = Math.max(0, currentPrincipal - alloc);
             if (currentPrincipal === 0) isWrittenOff = true;
         } else if (txn.type === 'writeoff_interest') {
-            totalWrittenOffInterest += txn.amount;
+            const outI = Math.max(0, totalInterestAccrued - totalGotInterest - totalWrittenOffInterest);
+            const alloc = Math.min(txn.amount, outI);
+            totalWrittenOffInterest += alloc;
         }
         lastDate = txn.date;
     });
 
-    const endDate = account.status === 'closed' ? (account.closedDate || getTodayStr()) : getTodayStr();
-    const rem = getDaysBetween(lastDate, endDate);
+    const targetEnd = asOfDate || (account.status === 'closed' ? (account.closedDate || getTodayStr()) : getTodayStr());
+    const rem = getDaysBetween(lastDate, targetEnd);
     if (rem > 0 && !isWrittenOff) {
         totalInterestAccrued += (currentPrincipal * account.rate * rem) / (100 * 365);
     }
@@ -251,8 +284,10 @@ const calculateAccountMetrics = (account, allTxns) => {
         outstandingPrincipal: currentPrincipal,
         accruedInterest: totalInterestAccrued,
         outstandingInterest,
-        totalGotInterest, totalGotPrincipal,
+        totalGotInterest,
+        totalGotPrincipal,
         totalWrittenOffInterest,
+        totalWrittenOffPrincipal,
         totalGot: totalGotPrincipal + totalGotInterest,
         isWrittenOff
     };
@@ -338,6 +373,7 @@ const switchView = (viewId) => {
 
     refreshUI();
 };
+window.switchView = switchView;
 
 // ── Modals / Sheets ──────────────────────────────────────
 const openModal = (id) => {
@@ -479,9 +515,12 @@ const renderRecentTransactions = (activeData, targetId = 'recent-txns-list', lim
         type: 'loan_given', amount: a.principal, date: a.startDate, notes: a.notes
     }));
 
-    const sorted = [...activeData.transactions, ...pseudoTxns]
-        .sort((a, b) => new Date(b.date) - new Date(a.date))
-        .slice(0, limit);
+    let sorted = [...activeData.transactions, ...pseudoTxns]
+        .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (limit && limit > 0) {
+        sorted = sorted.slice(0, limit);
+    }
 
     if (sorted.length === 0) {
         list.innerHTML = `<div class="empty">
@@ -608,8 +647,7 @@ const renderBorrowersList = () => {
 };
 
 // ── Ledger ───────────────────────────────────────────────
-const openLedger = (borrowerId) => {
-    currentBorrowerId = borrowerId;
+const renderLedgerHeader = (borrowerId) => {
     const activeData = getActiveData();
     const b = state.borrowers.find(x => x.id === borrowerId);
     if (!b) return;
@@ -628,8 +666,8 @@ const openLedger = (borrowerId) => {
     const loansEl = document.getElementById('ledger-active-loans');
     if (loansEl) loansEl.textContent = `${stats.activeAccounts}`;
 
-    const limitEl = document.getElementById('ledger-credit-limit');
-    if (limitEl) limitEl.textContent = stats.activeAccounts > 0 ? `₹1,00,000` : `—`;
+    const lentEl = document.getElementById('ledger-total-lent');
+    if (lentEl) lentEl.textContent = formatCurrency(stats.totalInitialPrincipal);
 
     const nextRepayEl = document.getElementById('ledger-next-repayment');
     if (nextRepayEl) nextRepayEl.textContent = stats.startDate ? formatDate(stats.startDate) : '—';
@@ -642,6 +680,50 @@ const openLedger = (borrowerId) => {
 
     const btnDelPerson = document.getElementById('btn-delete-person');
     if (btnDelPerson) btnDelPerson.dataset.borrowerId = borrowerId;
+};
+
+const updateTxnModalHint = () => {
+    const accountId = document.getElementById('input-txn-acc-id').value;
+    const date = document.getElementById('input-txn-date').value || getTodayStr();
+    const type = document.getElementById('input-txn-type').value;
+    const txnId = document.getElementById('input-txn-id').value;
+    const acc = state.accounts.find(a => a.id === accountId);
+    const hintEl = document.getElementById('txn-outstanding-hint');
+    const maxEl = document.getElementById('input-txn-max');
+    if (!acc || !hintEl) return;
+
+    let validateTxns = state.transactions;
+    if (txnId) validateTxns = validateTxns.filter(t => t.id !== txnId);
+
+    const m = calculateAccountMetrics(acc, validateTxns, date);
+    let max = Infinity;
+    let label = '';
+    if (type === 'payment_principal') {
+        max = m.outstandingPrincipal;
+        label = `Principal O/S (as of ${formatDate(date)}): ${formatCurrency(max)}`;
+    } else if (type === 'payment_interest') {
+        max = m.outstandingInterest;
+        label = `Accrued Interest (as of ${formatDate(date)}): ${formatCurrency(max)}`;
+    } else if (type === 'writeoff') {
+        max = m.outstandingPrincipal;
+        label = `Max Principal Write-off (as of ${formatDate(date)}): ${formatCurrency(max)}`;
+    } else if (type === 'writeoff_interest') {
+        max = m.outstandingInterest;
+        label = `Max Interest Write-off (as of ${formatDate(date)}): ${formatCurrency(max)}`;
+    } else {
+        // repayment
+        max = m.outstandingPrincipal + m.outstandingInterest;
+        label = `Total O/S as of ${formatDate(date)}: ${formatCurrency(max)} (P: ${formatCurrency(m.outstandingPrincipal)} + I: ${formatCurrency(m.outstandingInterest)})`;
+    }
+
+    hintEl.textContent = label;
+    hintEl.style.display = 'block';
+    if (maxEl) maxEl.value = max;
+};
+
+const openLedger = (borrowerId) => {
+    currentBorrowerId = borrowerId;
+    renderLedgerHeader(borrowerId);
 
     // Switch to ledger view (not a tab — handled specially)
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
@@ -699,8 +781,8 @@ const renderLedgerView = (borrowerId) => {
                     <div class="txn-right">
                         <div class="txn-amt ${amtClass} num">${sign}${formatCurrency(t.amount)}</div>
                         ${canEdit ? `<div class="txn-actions">
-                            <button class="icon-btn btn-edit-txn" data-id="${t.id}" title="Edit"><i class="ph ph-pencil-simple"></i></button>
-                            <button class="icon-btn danger btn-delete-txn" data-id="${t.id}" title="Delete"><i class="ph ph-trash"></i></button>
+                            <button class="icon-btn btn-edit-txn" data-id="${escapeHtml(t.id)}" title="Edit"><i class="ph ph-pencil-simple"></i></button>
+                            <button class="icon-btn danger btn-delete-txn" data-id="${escapeHtml(t.id)}" title="Delete"><i class="ph ph-trash"></i></button>
                         </div>` : ''}
                     </div>
                 </div>`;
@@ -718,7 +800,7 @@ const renderLedgerView = (borrowerId) => {
                     ${isClosed ? `<span class="badge badge-closed"><i class="ph ph-lock-key"></i>Closed</span>` : ''}
                 </div>
                 <div class="acc-head-actions">
-                    <button class="icon-btn danger btn-delete-acc" data-id="${acc.id}" title="Delete Account"><i class="ph ph-trash"></i></button>
+                    <button class="icon-btn danger btn-delete-acc" data-id="${escapeHtml(acc.id)}" title="Delete Account"><i class="ph ph-trash"></i></button>
                 </div>
             </div>
 
@@ -734,7 +816,7 @@ const renderLedgerView = (borrowerId) => {
                 </div>
                 <div class="acc-table-row">
                     <div class="acc-table-label"><i class="ph ph-trend-up"></i> <span>Interest Rate:</span></div>
-                    <div class="acc-table-value">${acc.rate}% p.a.</div>
+                    <div class="acc-table-value">${escapeHtml(String(acc.rate))}% p.a.</div>
                 </div>
                 <div class="acc-table-row">
                     <div class="acc-table-label"><i class="ph ph-bank"></i> <span>Payment Account:</span></div>
@@ -813,12 +895,7 @@ const renderLedgerView = (borrowerId) => {
             document.getElementById('input-txn-mode').value = 'Cash';
             document.getElementById('input-txn-txnid').value = '';
             document.getElementById('input-txn-type').value = 'repayment';
-            const metrics = calculateAccountMetrics(acc, state.transactions);
-            const outstanding = metrics.outstandingPrincipal + metrics.outstandingInterest;
-            document.getElementById('txn-outstanding-hint').textContent =
-                `Outstanding: ${formatCurrency(outstanding)} (P: ${formatCurrency(metrics.outstandingPrincipal)} + I: ${formatCurrency(metrics.outstandingInterest)})`;
-            document.getElementById('txn-outstanding-hint').style.display = 'block';
-            document.getElementById('input-txn-max').value = outstanding;
+            updateTxnModalHint();
             openModal('modal-add-txn');
         };
     });
@@ -886,10 +963,7 @@ const renderLedgerView = (borrowerId) => {
             document.getElementById('input-txn-notes').value = txn.notes || '';
             document.getElementById('input-txn-mode').value = txn.mode || 'Cash';
             document.getElementById('input-txn-txnid').value = txn.txnId || '';
-            document.getElementById('txn-outstanding-hint').style.display = 'none';
-            const metrics = calculateAccountMetrics(acc, state.transactions);
-            const outstanding = metrics.outstandingPrincipal + metrics.outstandingInterest + txn.amount;
-            document.getElementById('input-txn-max').value = outstanding;
+            updateTxnModalHint();
             openModal('modal-add-txn');
         };
     });
@@ -921,7 +995,7 @@ const updatePortfolioDropdowns = () => {
                         alert('Cannot delete the last portfolio.');
                         return;
                     }
-                    if (!confirm(`Delete portfolio "${escapeHtml(p)}" and ALL its accounts/transactions?`)) return;
+                    if (!confirm(`Delete portfolio "${p}" and ALL its accounts/transactions?`)) return;
                     state.portfolios = state.portfolios.filter(x => x !== p);
                     const toDelete = state.accounts.filter(a => a.portfolioId === p).map(a => a.id);
                     state.accounts = state.accounts.filter(a => a.portfolioId !== p);
@@ -937,9 +1011,10 @@ const updatePortfolioDropdowns = () => {
 };
 
 const renderHome = () => {
+    const activeData = getActiveData();
     let totalAssets = 0;
-    state.accounts.forEach(acc => {
-        const m = getCachedMetrics(acc, state.transactions);
+    activeData.accounts.forEach(acc => {
+        const m = getCachedMetrics(acc, activeData.transactions);
         totalAssets += (m.outstandingPrincipal + m.outstandingInterest);
     });
     
@@ -965,10 +1040,13 @@ const refreshUI = () => {
     // Transactions view (full list)
     const allTxnsSection = document.getElementById('view-transactions');
     if (allTxnsSection?.classList.contains('active')) {
-        renderRecentTransactions(getActiveData(), 'all-txns-list', 999);
+        renderRecentTransactions(getActiveData(), 'all-txns-list', null);
     }
 
-    if (currentBorrowerId) renderLedgerView(currentBorrowerId);
+    if (currentBorrowerId) {
+        renderLedgerHeader(currentBorrowerId);
+        renderLedgerView(currentBorrowerId);
+    }
 };
 
 // ── Import ───────────────────────────────────────────────
@@ -1075,7 +1153,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!id) {
             const norm = name.toLowerCase();
             const existing = state.borrowers.find(b => b.name.trim().toLowerCase() === norm);
-            if (existing && !confirm(`"${escapeHtml(existing.name)}" already exists. Create another?`)) return;
+            if (existing && !confirm(`"${existing.name}" already exists. Create another?`)) return;
         }
         if (id) {
             const b = state.borrowers.find(x => x.id === id);
@@ -1110,6 +1188,7 @@ document.addEventListener('DOMContentLoaded', () => {
         di.value = getTodayStr(); di.max = getTodayStr();
         document.getElementById('input-acc-amount').value = '';
         document.getElementById('input-acc-rate').value = '';
+        document.getElementById('input-acc-mode').value = 'Cash';
         document.getElementById('input-acc-txnid').value = '';
         document.getElementById('input-acc-notes').value = '';
         openModal('modal-add-account');
@@ -1159,7 +1238,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const notes       = document.getElementById('input-txn-notes').value.trim();
         const mode        = document.getElementById('input-txn-mode').value;
         const txnId       = document.getElementById('input-txn-txnid').value.trim();
-        const maxOut      = parseFloat(document.getElementById('input-txn-max').value) || Infinity;
 
         if (!amount || amount <= 0) return alert('Amount must be greater than 0.');
         if (!date) return alert('Date is required.');
@@ -1171,17 +1249,32 @@ document.addEventListener('DOMContentLoaded', () => {
             validateTxns = state.transactions.filter(t => t.id !== id);
         }
         
-        if (['repayment','payment_principal','payment_interest'].includes(type)) {
-            const acc = state.accounts.find(a => a.id === accountId);
-            const baselineMetrics = calculateAccountMetrics(acc, validateTxns);
-            let maxAllowed = Infinity;
-            if (type === 'payment_principal') maxAllowed = baselineMetrics.outstandingPrincipal;
-            else if (type === 'payment_interest') maxAllowed = baselineMetrics.outstandingInterest;
-            else if (type === 'repayment') maxAllowed = baselineMetrics.outstandingPrincipal + baselineMetrics.outstandingInterest;
-            
-            if (amount > maxAllowed + 0.5) {
-                return alert(`Amount (${formatCurrency(amount)}) exceeds outstanding (${formatCurrency(maxAllowed)}).`);
-            }
+        const acc = state.accounts.find(a => a.id === accountId);
+        if (!acc) return alert('Loan account not found.');
+
+        const asOfMetrics = calculateAccountMetrics(acc, validateTxns, date);
+        let maxAllowed = Infinity;
+        let limitTypeLabel = 'outstanding balance';
+
+        if (type === 'payment_principal') {
+            maxAllowed = asOfMetrics.outstandingPrincipal;
+            limitTypeLabel = 'outstanding principal';
+        } else if (type === 'payment_interest') {
+            maxAllowed = asOfMetrics.outstandingInterest;
+            limitTypeLabel = 'accrued interest';
+        } else if (type === 'repayment') {
+            maxAllowed = asOfMetrics.outstandingPrincipal + asOfMetrics.outstandingInterest;
+            limitTypeLabel = 'total outstanding (P+I)';
+        } else if (type === 'writeoff') {
+            maxAllowed = asOfMetrics.outstandingPrincipal;
+            limitTypeLabel = 'outstanding principal';
+        } else if (type === 'writeoff_interest') {
+            maxAllowed = asOfMetrics.outstandingInterest;
+            limitTypeLabel = 'accrued interest';
+        }
+
+        if (amount > maxAllowed + 0.5) {
+            return alert(`Amount (${formatCurrency(amount)}) exceeds ${limitTypeLabel} as of ${formatDate(date)} (${formatCurrency(maxAllowed)}).`);
         }
 
         if (id) {
@@ -1239,7 +1332,25 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
         if (errs.length && !confirm('⚠️ Warnings:\n\n' + errs.join('\n') + '\n\nProceed?')) return;
-        state = { ...importPendingData, theme: preservedTheme, activePortfolio: preservedPortfolio };
+        
+        const importedPortfolios = Array.isArray(importPendingData.portfolios) && importPendingData.portfolios.length
+            ? importPendingData.portfolios
+            : ['Self', 'Mother', 'Wife'];
+        
+        let targetPortfolio = preservedPortfolio;
+        if (targetPortfolio !== '__ALL__' && !importedPortfolios.includes(targetPortfolio)) {
+            targetPortfolio = '__ALL__';
+        }
+
+        state = {
+            ...importPendingData,
+            portfolios: importedPortfolios,
+            borrowers: Array.isArray(importPendingData.borrowers) ? importPendingData.borrowers : [],
+            accounts: Array.isArray(importPendingData.accounts) ? importPendingData.accounts : [],
+            transactions: Array.isArray(importPendingData.transactions) ? importPendingData.transactions : [],
+            theme: preservedTheme,
+            activePortfolio: targetPortfolio
+        };
         loadFailed = false;
         autoSave(); closeModal(); importPendingData = null; switchView('home');
         alert('Import successful.');
@@ -1262,9 +1373,14 @@ document.addEventListener('DOMContentLoaded', () => {
         };
     });
 
+    // Dynamic hint update on transaction modal input changes
+    document.getElementById('input-txn-type')?.addEventListener('change', updateTxnModalHint);
+    document.getElementById('input-txn-date')?.addEventListener('change', updateTxnModalHint);
+    document.getElementById('input-txn-date')?.addEventListener('input', updateTxnModalHint);
+
     // Transactions view — render on tab switch
     document.querySelector('.tab-btn[data-view="transactions"]')?.addEventListener('click', () => {
-        setTimeout(() => renderRecentTransactions(getActiveData(), 'all-txns-list', 999), 50);
+        setTimeout(() => renderRecentTransactions(getActiveData(), 'all-txns-list', null), 50);
     });
 });
 

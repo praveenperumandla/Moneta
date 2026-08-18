@@ -1,7 +1,12 @@
+import os
 import re
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+styles_path = os.path.join(BASE_DIR, 'styles.css')
+tokens_path = os.path.join(BASE_DIR, 'css', 'tokens.css')
+
 # Read styles.css
-with open('d:/Python Projects/Moneta - Copy/styles.css', 'r', encoding='utf-8') as f:
+with open(styles_path, 'r', encoding='utf-8') as f:
     css = f.read()
 
 # 1. Update legacy vars
@@ -59,7 +64,7 @@ css = re.sub(r'(\.sheet__close\s*\{[^}]*)width:\s*\d+px;\s*height:\s*\d+px;', r'
 css = re.sub(r'/\* Glow orbs \*/[\s\S]*?pointer-events: none;\s*\}\s*', '', css)
 
 # 4. Remove gradients from avatars/buttons
-css = re.sub(r'background:\s*linear-gradient\([^)]+\);', 'background: var(--blue);', css)
+css = re.sub(r'background:\s*linear-gradient\([^;]+?\);', 'background: var(--blue);', css)
 
 # 5. Remove blur effects
 css = re.sub(r'backdrop-filter:[^;]+;', '', css)
@@ -261,9 +266,10 @@ new_css = '''
   letter-spacing: 0.05em;
 }
 '''
-css += new_css
+if '.nw-hero' not in css:
+    css += new_css
 
-with open('d:/Python Projects/Moneta - Copy/styles.css', 'w', encoding='utf-8') as f:
+with open(styles_path, 'w', encoding='utf-8') as f:
     f.write(css)
 
 # Generate new tokens.css
@@ -349,5 +355,5 @@ tokens_css = '''/* Moneta Design Tokens (Groww/INDmoney inspired) */
   --z-modal: 200;
 }
 '''
-with open('d:/Python Projects/Moneta - Copy/css/tokens.css', 'w', encoding='utf-8') as f:
+with open(tokens_path, 'w', encoding='utf-8') as f:
     f.write(tokens_css)

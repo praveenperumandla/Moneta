@@ -1,4 +1,4 @@
-﻿(() => {
+(() => {
   const devices = {
     'iphone-se': { label: 'iPhone SE', width: 375, height: 667, radius: 38 },
     'iphone-13': { label: 'iPhone 13', width: 390, height: 844, radius: 54 },
@@ -102,4 +102,13 @@
   setPressed('[data-scale]', selectedScale, 'scale');
   setDevice(deviceSelect.value);
   updatePwaStatus();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.addEventListener('controllerchange', updatePwaStatus);
+    navigator.serviceWorker.ready.then(updatePwaStatus).catch(() => {});
+  }
+  const previewFrame = document.querySelector('iframe');
+  if (previewFrame) {
+    previewFrame.addEventListener('load', () => setTimeout(updatePwaStatus, 400));
+  }
 })();

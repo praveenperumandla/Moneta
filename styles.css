@@ -51,9 +51,9 @@
   --r-xl: var(--radius-xl, 16px);
 
   /* Layout — mobile toolbar */
-  --tab-h:    40px;
+  --tab-h:    52px;
   --hdr-h:    56px;
-  --safe-area-bottom: 0px;
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
 /* ── Base ────────────────────────────────────────────────── */
@@ -148,7 +148,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: 16px 14px 4px;
+  padding: 16px 14px calc(var(--tab-h) + var(--safe-area-bottom) + 16px);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -940,8 +940,8 @@ input, textarea, select {
   right: 0;
   width: 100%;
   box-sizing: border-box;
-  height: var(--tab-h);
-  padding: 0 4px;
+  height: calc(var(--tab-h) + var(--safe-area-bottom));
+  padding: 0 4px var(--safe-area-bottom);
   background: rgba(13, 13, 15, 0.96);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);

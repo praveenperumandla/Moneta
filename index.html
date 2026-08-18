@@ -13,9 +13,9 @@
   <link rel="stylesheet" href="css/tokens.css" />
   <link rel="stylesheet" href="styles.css" />
   <!-- Phosphor Icons -->
-  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" defer></script>
+  <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" crossorigin="anonymous" defer></script>
   <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" crossorigin="anonymous"></script>
 </head>
 <body>
 
@@ -249,9 +249,9 @@
               <span class="tile-val" id="ledger-active-loans">0</span>
             </div>
             <div class="profile-overview-tile">
-              <i class="ph ph-credit-card"></i>
-              <span class="tile-label">Credit Limit:</span>
-              <span class="tile-val" id="ledger-credit-limit">—</span>
+              <i class="ph ph-hand-coins"></i>
+              <span class="tile-label">Total Lent:</span>
+              <span class="tile-val" id="ledger-total-lent">₹0</span>
             </div>
             <div class="profile-overview-tile">
               <i class="ph ph-calendar"></i>
@@ -557,6 +557,8 @@
       </div>
     </div>
   </div>
+
+</div><!-- /#modal-backdrop -->
 
 <!-- Update Toast -->
 <div class="update-toast hidden" id="update-toast">

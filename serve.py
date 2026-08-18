@@ -44,6 +44,7 @@ def get_ip():
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
+    socketserver.TCPServer.allow_reuse_address = True
     with socketserver.TCPServer(("", PORT), MyHTTPRequestHandler) as httpd:
         ip = get_ip()
         print("=" * 60)

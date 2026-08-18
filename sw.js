@@ -13,9 +13,7 @@ const STATIC_ASSETS = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => {
-      return cache.addAll(STATIC_ASSETS);
-    }).catch(err => console.log('Cache failed:', err))
+    caches.open(CACHE_NAME).then((cache) => cache.addAll(STATIC_ASSETS))
   );
 });
 
@@ -38,18 +36,21 @@ self.addEventListener('activate', (event) => {
   self.clients.claim();
 });
 
+const ALLOWED_EXTERNAL_HOSTS = ['unpkg.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'];
+
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   const url = new URL(event.request.url);
-  const isExternal = ['unpkg.com', 'cdn.jsdelivr.net', 'fonts.googleapis.com', 'fonts.gstatic.com'].some(domain => url.hostname.includes(domain));
-  if (!url.origin.includes(self.location.hostname) && !isExternal) return;
+  const isExternal = ALLOWED_EXTERNAL_HOSTS.some(domain => url.hostname === domain || url.hostname.endsWith('.' + domain));
+  const isSameOrigin = url.origin === self.location.origin;
+  if (!isSameOrigin && !isExternal) return;
 
   if (isExternal) {
     event.respondWith(
       caches.open(CACHE_NAME).then(cache =>
         cache.match(event.request).then(cached =>
           cached || fetch(event.request).then(response => {
-            if (response && response.status === 200 && response.type === 'cors') {
+            if (response && (response.status === 200 || response.type === 'opaque')) {
               cache.put(event.request, response.clone());
             }
             return response;
@@ -66,9 +67,13 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       }).catch(() =>
-        caches.match(event.request).then(cached =>
-          cached || new Response('Moneta is offline.', { status: 503 })
-        )
+        caches.match(event.request).then(cached => {
+          if (cached) return cached;
+          if (event.request.mode === 'navigate') {
+            return caches.match(basePath + '/index.html') || caches.match(basePath + '/');
+          }
+          return new Response(null, { status: 503, statusText: 'Offline' });
+        })
       )
     );
   }
