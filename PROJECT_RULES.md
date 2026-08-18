@@ -1,7 +1,7 @@
 # Moneta Project Rules
 
-Version: 1.0
-Last Updated: 2026-07-25
+Version: 1.1
+Last Updated: 2026-08-19
 
 ---
 
@@ -119,13 +119,16 @@ Existing JSON exports should continue to work.
 
 ---
 
-# Version Control
+# Version Control & Mandatory Version Bumping
 
-Every milestone should include:
+Every Git commit / milestone **MUST** include a synchronized version bump across the codebase to guarantee PWA cache invalidation and traceability.
 
-- Commit
-- Changelog
-- Version update
+Whenever committing code changes:
+
+1. **`VERSION` file:** Update the semantic version string (e.g., `v5.4.0`).
+2. **`index.html`:** Update the version display label in the Settings view (`<span class="settings-row__meta">v5.4.0</span>`).
+3. **`sw.js`:** Update `CACHE_NAME` (`const CACHE_NAME = 'moneta-v5.4.0';`). This triggers the PWA update lifecycle and prompts users to update while clearing stale asset caches.
+4. **Commit message:** Follow semantic commit conventions (`feat:`, `fix:`, `refactor:`, `docs:`) referencing the version or milestone.
 
 ---
 
@@ -147,7 +150,7 @@ Test
 
 ↓
 
-Commit
+Commit (with Version Bump)
 
 ↓
 
@@ -157,8 +160,5 @@ Release
 
 # Rule Zero
 
-When in doubt,
-
-do not modify the accounting engine.
+When in doubt, do not modify the accounting engine.
 - **Accounting Integrity:** Closed accounts are permanent. Do not build features to 'reopen' them. If a borrower needs a new loan, create a new Account. This prevents retroactive interest miscalculations.
-
