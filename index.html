@@ -622,6 +622,7 @@
 
         // Tap to update
         document.getElementById('btn-update-app').addEventListener('click', () => {
+          if (window.flushSave) window.flushSave();
           if (reg.waiting) {
             reg.waiting.postMessage({ type: 'SKIP_WAITING' });
           }
@@ -633,6 +634,7 @@
         navigator.serviceWorker.addEventListener('controllerchange', () => {
           if (!refreshing) {
             refreshing = true;
+            if (window.flushSave) window.flushSave();
             window.location.reload();
           }
         });

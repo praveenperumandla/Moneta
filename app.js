@@ -76,6 +76,8 @@ const getActiveData = () => {
 };
 
 // ── Persistence ──────────────────────────────────────────
+let loadFailed = false;
+
 const loadData = () => {
     try {
         let saved = localStorage.getItem('moneta_data_v1');
@@ -85,62 +87,107 @@ const loadData = () => {
         }
         if (saved) {
             const parsed = JSON.parse(saved);
+            if (!parsed || typeof parsed !== 'object') {
+                throw new Error('Corrupt data: Root object expected');
+            }
             state.activePortfolio = parsed.activePortfolio || '__ALL__';
-            state.portfolios = parsed.portfolios || ['Self', 'Mother', 'Wife'];
+            state.portfolios = Array.isArray(parsed.portfolios) && parsed.portfolios.length ? parsed.portfolios : ['Self', 'Mother', 'Wife'];
             state.theme = parsed.theme || 'dark';
 
             if (parsed.data) {
                 // Legacy format migration
-                state.borrowers = []; state.accounts = []; state.transactions = [];
+                const newBorrowers = [];
+                const newAccounts = [];
+                const newTransactions = [];
                 const borrowerNameMap = {};
                 state.portfolios.forEach(p => {
                     const pd = parsed.data[p];
                     if (!pd) return;
                     const localToGlobal = {};
                     (pd.borrowers || []).forEach(b => {
-                        const key = b.name.trim().toLowerCase();
+                        const nameStr = (b.name ? String(b.name).trim() : '') || 'Unnamed';
+                        const key = nameStr.toLowerCase();
                         if (!borrowerNameMap[key]) {
                             const newId = generateId();
                             borrowerNameMap[key] = newId;
-                            state.borrowers.push({ id: newId, name: b.name, phone: b.phone });
+                            newBorrowers.push({ id: newId, name: nameStr, phone: b.phone || '' });
                         }
                         localToGlobal[b.id] = borrowerNameMap[key];
                     });
                     (pd.accounts || []).forEach(a => {
-                        state.accounts.push({ ...a, portfolioId: p, borrowerId: localToGlobal[a.borrowerId] });
+                        newAccounts.push({ ...a, portfolioId: p, borrowerId: localToGlobal[a.borrowerId] });
                     });
-                    (pd.transactions || []).forEach(t => state.transactions.push(t));
+                    (pd.transactions || []).forEach(t => newTransactions.push(t));
                 });
+                state.borrowers = newBorrowers;
+                state.accounts = newAccounts;
+                state.transactions = newTransactions;
+                loadFailed = false;
                 autoSave();
             } else {
-                state.borrowers = parsed.borrowers || [];
-                state.accounts = parsed.accounts || [];
-                state.transactions = parsed.transactions || [];
+                state.borrowers = Array.isArray(parsed.borrowers) ? parsed.borrowers : [];
+                state.accounts = Array.isArray(parsed.accounts) ? parsed.accounts : [];
+                state.transactions = Array.isArray(parsed.transactions) ? parsed.transactions : [];
+                loadFailed = false;
             }
+        } else {
+            loadFailed = false;
         }
-    } catch(e) { console.error('Load failed:', e); }
+    } catch(e) {
+        loadFailed = true;
+        console.error('Load failed:', e);
+        setTimeout(() => {
+            alert('⚠️ CRITICAL: Moneta data failed to load from storage. Auto-save has been DISABLED to protect your existing records.\n\nPlease export a backup or inspect the developer console.');
+        }, 200);
+    }
+};
+
+const flushSave = () => {
+    if (loadFailed) {
+        console.warn('Auto-save aborted: loadData failed, refusing to overwrite storage.');
+        return;
+    }
+    if (autoSaveTimer) {
+        clearTimeout(autoSaveTimer);
+        autoSaveTimer = null;
+    }
+    try {
+        localStorage.setItem('moneta_data_v1', JSON.stringify(state));
+    } catch(e) {
+        if (e.name === 'QuotaExceededError') alert('Storage full! Export and clear old data.');
+        console.error('Save failed:', e);
+    }
 };
 
 const autoSave = () => {
+    if (loadFailed) return;
     if (autoSaveTimer) clearTimeout(autoSaveTimer);
-    autoSaveTimer = setTimeout(() => {
-        try {
-            localStorage.setItem('moneta_data_v1', JSON.stringify(state));
-        } catch(e) {
-            if (e.name === 'QuotaExceededError') alert('Storage full! Export and clear old data.');
-        }
-    }, 300);
+    autoSaveTimer = setTimeout(flushSave, 300);
 };
 
+window.addEventListener('pagehide', flushSave);
+window.addEventListener('beforeunload', flushSave);
+document.addEventListener('visibilitychange', () => {
+    if (document.visibilityState === 'hidden') flushSave();
+});
+window.flushSave = flushSave;
+
+
 const exportData = () => {
-    const payload = {
-        borrowers: state.borrowers,
-        accounts: state.accounts,
-        transactions: state.transactions,
-        portfolios: state.portfolios
-    };
-    const json = JSON.stringify(payload, null, 2);
-    const filename = 'Moneta_Backup_' + getTodayStr() + '.json';
+    let json;
+    if (loadFailed) {
+        const raw = localStorage.getItem('moneta_data_v1') || localStorage.getItem('vault_data_v2');
+        json = raw || JSON.stringify(state, null, 2);
+    } else {
+        const payload = {
+            borrowers: state.borrowers,
+            accounts: state.accounts,
+            transactions: state.transactions,
+            portfolios: state.portfolios
+        };
+        json = JSON.stringify(payload, null, 2);
+    }
+    const filename = (loadFailed ? 'Moneta_RAW_Corrupt_' : 'Moneta_Backup_') + getTodayStr() + '.json';
     try {
         const blob = new Blob([json], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
@@ -1193,6 +1240,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         if (errs.length && !confirm('⚠️ Warnings:\n\n' + errs.join('\n') + '\n\nProceed?')) return;
         state = { ...importPendingData, theme: preservedTheme, activePortfolio: preservedPortfolio };
+        loadFailed = false;
         autoSave(); closeModal(); importPendingData = null; switchView('home');
         alert('Import successful.');
     };
