@@ -1099,6 +1099,14 @@ document.addEventListener('DOMContentLoaded', () => {
     loadData();
     switchView('borrowers');
 
+    fetch('VERSION', { cache: 'no-store' })
+        .then(r => r.ok ? r.text() : Promise.reject())
+        .then(v => {
+            const label = document.getElementById('app-version-label');
+            if (label && v.trim()) label.textContent = v.trim();
+        })
+        .catch(() => {});
+
     // Tab bar
     document.querySelectorAll('.tab-btn[data-view]').forEach(btn => {
         btn.addEventListener('click', () => switchView(btn.dataset.view));
