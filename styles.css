@@ -52,8 +52,8 @@
   --r-xl:        var(--radius-xl);
 
   /* Layout — mobile toolbar */
-  --tab-h:       49px;
-  --hdr-h:       56px;
+  --tab-h:       48px;
+  --hdr-h:       46px;
   --safe-area-bottom: env(safe-area-inset-bottom, 0px);
 }
 
@@ -97,13 +97,14 @@ input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 var(--space-lg);
-  height: var(--hdr-h);
+  padding: 0 var(--space-md);
   padding-top: env(safe-area-inset-top);
   height: calc(var(--hdr-h) + env(safe-area-inset-top));
   flex-shrink: 0;
-  background: var(--bg);
-  border-bottom: 1px solid var(--border);
+  background: rgba(9, 9, 11, 0.88);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 0.5px solid var(--border);
   position: relative;
   z-index: 10;
 }
@@ -112,16 +113,17 @@ input, textarea, select {
 .hdr-right { display: flex; align-items: center; gap: var(--space-sm); }
 
 .hdr-icon-btn {
-  width: 44px; height: 44px;
+  width: 36px; height: 36px;
   display: flex; align-items: center; justify-content: center;
-  border: none; background: transparent; color: var(--t2);
-  font-size: 20px; cursor: pointer; border-radius: var(--r-sm);
-  transition: color 0.15s;
+  border: none; background: var(--surface-2); color: var(--t2);
+  font-size: 18px; cursor: pointer; border-radius: 50%;
+  border: 1px solid var(--border);
+  transition: transform 0.15s, opacity 0.15s;
 }
-.hdr-icon-btn:active { opacity: 0.6; }
+.hdr-icon-btn:active { transform: scale(0.92); opacity: 0.7; }
 
 .hdr-avatar {
-  width: 36px; height: 36px;
+  width: 32px; height: 32px;
   border-radius: 50%;
   background: var(--surface-3);
   border: 1px solid var(--border-md);
@@ -137,10 +139,10 @@ input, textarea, select {
 .hdr-portfolio-selector {
   display: flex;
   align-items: center;
-  gap: var(--space-sm);
+  gap: 6px;
   background: var(--surface-2);
-  padding: 4px var(--space-md) 4px 4px;
-  border-radius: 24px;
+  padding: 2px 10px 2px 3px;
+  border-radius: 20px;
   border: 1px solid var(--border);
   cursor: pointer;
   transition: background 0.15s;
@@ -148,8 +150,8 @@ input, textarea, select {
 .hdr-portfolio-selector:active { background: var(--surface-3); }
 
 .hdr-portfolio-icon {
-  width: 28px;
-  height: 28px;
+  width: 24px;
+  height: 24px;
   background: var(--blue-dim);
   color: var(--blue);
   border: 1px solid rgba(79, 140, 255, 0.2);
@@ -157,18 +159,18 @@ input, textarea, select {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-caption);
+  font-size: 11px;
   font-weight: 600;
 }
 
 .hdr-portfolio-label {
-  font-size: var(--font-size-caption);
+  font-size: 13px;
   font-weight: 600;
   color: var(--t1);
 }
 
 .hdr-portfolio-caret {
-  font-size: var(--font-size-caption);
+  font-size: 11px;
   color: var(--t3);
 }
 
@@ -188,7 +190,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: var(--space-lg) var(--space-lg) calc(var(--tab-h) + var(--safe-area-bottom) + var(--space-sm));
+  padding: var(--space-md) var(--space-md) calc(var(--tab-h) + var(--safe-area-bottom) + 16px);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -306,6 +308,7 @@ input, textarea, select {
   border-radius: var(--r-lg);
   overflow: hidden;
   margin-bottom: var(--space-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .section-card:last-child {
   margin-bottom: 0;
@@ -419,6 +422,7 @@ input, textarea, select {
   display: flex; align-items: center; gap: var(--space-md);
   cursor: pointer; transition: background 0.15s;
   -webkit-tap-highlight-color: transparent;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .borrower-tile:active { background: var(--surface-3); }
 
@@ -973,12 +977,12 @@ input, textarea, select {
   box-sizing: border-box;
   height: calc(var(--tab-h) + var(--safe-area-bottom));
   padding: 0 0 var(--safe-area-bottom);
-  background: rgba(13, 13, 15, 0.94);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-top: 1px solid var(--border);
+  background: rgba(9, 9, 11, 0.85);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border-top: 0.5px solid rgba(255, 255, 255, 0.12);
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-around;
   z-index: 100;
   transition: transform 0.25s var(--easing-standard);
@@ -998,8 +1002,7 @@ input, textarea, select {
   justify-content: center;
   gap: 2px;
   height: var(--tab-h);
-  min-height: 44px;
-  padding: 4px 0 3px;
+  padding: 4px 0 2px;
   border: none;
   background: transparent;
   color: var(--t3);
@@ -1008,21 +1011,22 @@ input, textarea, select {
   transition: color 150ms var(--easing-standard), opacity 150ms var(--easing-standard), transform 150ms var(--easing-standard);
   -webkit-tap-highlight-color: transparent;
 }
-.tab-btn.active { color: var(--blue); }
-.tab-btn:active { transform: scale(0.96); opacity: 0.8; }
+.tab-btn.active { color: var(--green); }
+.tab-btn:active { transform: scale(0.95); opacity: 0.8; }
 
 .tab-btn__icon {
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 .tab-btn__label {
-  font-size: 10px;
+  font-size: 9.5px;
   font-weight: 500;
-  letter-spacing: -0.01em;
+  letter-spacing: 0.01em;
   line-height: 1;
+  margin-top: 1px;
 }
 .tab-btn.active .tab-btn__label {
   font-weight: 600;
@@ -1187,10 +1191,11 @@ html { -webkit-text-size-adjust: 100%; }
 /* ── Net Worth Dashboard ────────────────────────────────── */
 .nw-hero {
   text-align: center;
-  padding: var(--space-2xl) var(--space-lg);
-  background: var(--surface-1);
+  padding: var(--space-xl) var(--space-md);
+  background: radial-gradient(ellipse 80% 55% at 50% -10%, rgba(0, 229, 163, 0.15), transparent 70%), var(--surface-1);
   border-bottom: 1px solid var(--border);
   margin-bottom: var(--space-lg);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .nw-hero__label {
   font-size: var(--font-size-caption);
@@ -1245,6 +1250,7 @@ html { -webkit-text-size-adjust: 100%; }
   display: flex;
   align-items: flex-start;
   gap: var(--space-md);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
 }
 .nw-split__card--assets {
   border-color: rgba(0, 208, 156, 0.15);
