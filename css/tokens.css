@@ -1,81 +1,137 @@
-/* Moneta Design Tokens (Groww/INDmoney inspired) */
+/* Moneta Design Tokens — Apple HIG & Mobile-First Benchmark */
 
 :root {
-  /* COLORS */
-  --color-background: #0D0D0F;
-  --color-surface: #1A1A1F;
-  --color-card: #1A1A1F;
-  --color-elevated: #222228;
-  --color-border: rgba(255, 255, 255, 0.06);
-  --color-primary: #00D09C;
-  --color-success: #00D09C;
-  --color-warning: #F59E0B;
-  --color-danger: #EB5B3C;
-  --color-info: #4F8CFF;
-  --color-violet: #A78BFA;
+  /* ── 1. COLORS (Semantic & Brand) ─────────────────────── */
+  --color-background:     #0D0D0F;
+  --color-surface-1:      #141418;
+  --color-surface-2:      #1A1A1F;
+  --color-surface-3:      #222228;
+  --color-elevated:       #2A2A32;
   
-  /* TEXT */
-  --color-text-primary: #F5F5F5;
-  --color-text-secondary: #8E8E93;
-  --color-text-muted: rgba(255, 255, 255, 0.45);
-  --color-text-inverse: #0D0D0F;
+  --color-border:         rgba(255, 255, 255, 0.08);
+  --color-border-md:      rgba(255, 255, 255, 0.14);
+
+  /* Primary & Functional Accents */
+  --color-primary:        #00D09C;
+  --color-primary-dim:    rgba(0, 208, 156, 0.14);
+  --color-success:        #00D09C;
+  --color-success-dim:    rgba(0, 208, 156, 0.14);
+  --color-warning:        #F59E0B;
+  --color-warning-dim:    rgba(245, 158, 11, 0.14);
+  --color-danger:         #EB5B3C;
+  --color-danger-dim:     rgba(235, 91, 60, 0.14);
+  --color-info:           #4F8CFF;
+  --color-info-dim:       rgba(79, 140, 255, 0.14);
+  --color-violet:         #A78BFA;
+  --color-violet-dim:     rgba(167, 139, 250, 0.14);
+
+  /* ── 2. TEXT & CONTRAST (WCAG AA Compliant) ──────────── */
+  --color-text-primary:   #F5F5F7;
+  --color-text-secondary: #AEAEB2;
+  --color-text-muted:     rgba(255, 255, 255, 0.65); /* High-contrast muted for legibility */
+  --color-text-dim:       rgba(255, 255, 255, 0.40); /* Decorative only */
+  --color-text-inverse:   #0D0D0F;
+
+  /* ── 3. SPACING (8pt Standard Grid) ───────────────────── */
+  --space-xs:             4px;
+  --space-sm:             8px;
+  --space-md:             12px;
+  --space-lg:             16px;
+  --space-xl:             24px;
+  --space-2xl:            32px;
+  --space-3xl:            48px;
+
+  /* Legacy Spacing Aliases */
+  --space-1:              var(--space-sm);
+  --space-2:              var(--space-lg);
+  --space-3:              var(--space-xl);
+  --space-4:              var(--space-2xl);
+  --space-5:              40px;
+  --space-6:              var(--space-3xl);
+  --space-7:              64px;
+  --space-8:              80px;
+
+  /* ── 4. TYPOGRAPHY (5-Tier iOS Scale) ─────────────────── */
+  --font-family:          -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
   
-  /* ELEVATION */
-  --surface-0: #0D0D0F;
-  --surface-1: #1A1A1F;
-  --surface-2: #1A1A1F;
-  --surface-3: #222228;
-  
-  /* OPACITY */
-  --opacity-disabled: 0.40;
-  --opacity-hover: 0.08;
-  --opacity-overlay: 0.60;
-  
-  /* BLUR */
-  --blur-sheet: 0px;
-  --blur-dialog: 0px;
-  
-  /* SPACING (8px grid) */
-  --space-1: 8px;
-  --space-2: 16px;
-  --space-3: 24px;
-  --space-4: 32px;
-  --space-5: 40px;
-  --space-6: 48px;
-  --space-7: 64px;
-  --space-8: 80px;
-  
-  /* BORDER RADIUS */
-  --radius-small: 8px;
-  --radius-medium: 10px;
-  --radius-large: 12px;
-  --radius-xl: 16px;
-  
-  /* SHADOWS (Minimal/Flat) */
-  --shadow-small: none;
-  --shadow-medium: none;
-  --shadow-large: none;
-  
-  /* TYPOGRAPHY */
-  --font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", sans-serif;
-  --font-size-display: 32px;
-  --font-size-heading: 24px;
-  --font-size-body: 14px;
-  --font-size-caption: 12px;
-  --font-weight-regular: 400;
-  --font-weight-medium: 500;
+  --font-size-display:    32px;
+  --font-size-title:      22px;
+  --font-size-headline:   17px;
+  --font-size-body:       15px;
+  --font-size-caption:    12px;
+  --font-size-subcaption: 11px;
+
+  --font-weight-regular:  400;
+  --font-weight-medium:   500;
   --font-weight-semibold: 600;
-  --font-weight-bold: 700;
-  
-  /* ANIMATION (Fast & Subtle) */
-  --duration-fast: 150ms;
-  --duration-normal: 200ms;
-  --duration-slow: 300ms;
-  --easing-standard: cubic-bezier(0.4, 0, 0.2, 1);
-  
-  /* Z-INDEX */
-  --z-sticky: 50;
-  --z-dropdown: 60;
-  --z-overlay: 100;
-  --z-modal: 200;
+  --font-weight-bold:     700;
+
+  --tracking-display:     -0.03em;
+  --tracking-title:       -0.025em;
+  --tracking-headline:    -0.015em;
+  --tracking-body:        -0.005em;
+  --tracking-caps:        0.08em;
+
+  /* ── 5. BORDER RADIUS ─────────────────────────────────── */
+  --radius-small:         8px;
+  --radius-medium:        10px;
+  --radius-large:         12px;
+  --radius-xl:            16px;
+
+  /* ── 6. MOTION & OPACITY ──────────────────────────────── */
+  --opacity-disabled:     0.40;
+  --opacity-hover:        0.08;
+  --opacity-overlay:      0.65;
+
+  --duration-fast:        150ms;
+  --duration-normal:      200ms;
+  --duration-slow:        300ms;
+  --easing-standard:      cubic-bezier(0.4, 0, 0.2, 1);
+  --easing-sheet:         cubic-bezier(0.32, 0.72, 0, 1);
+
+  /* ── 7. Z-INDEX ───────────────────────────────────────── */
+  --z-sticky:             50;
+  --z-dropdown:           60;
+  --z-overlay:            100;
+  --z-modal:              200;
 }
+
+/* ── 8. SYSTEM-DRIVEN LIGHT APPEARANCE (Apple HIG) ─────── */
+@media (prefers-color-scheme: light) {
+  :root {
+    /* Backgrounds & Surfaces (Apple System Light) */
+    --color-background:     #F2F2F7;
+    --color-surface-1:      #FFFFFF;
+    --color-surface-2:      #FFFFFF;
+    --color-surface-3:      #E5E5EA;
+    --color-elevated:       #D1D1D6;
+    
+    --color-border:         rgba(0, 0, 0, 0.08);
+    --color-border-md:      rgba(0, 0, 0, 0.14);
+
+    /* Primary & Functional Accents (Calibrated for light background contrast) */
+    --color-primary:        #00A87D;
+    --color-primary-dim:    rgba(0, 168, 125, 0.12);
+    --color-success:        #00A87D;
+    --color-success-dim:    rgba(0, 168, 125, 0.12);
+    --color-warning:        #D97706;
+    --color-warning-dim:    rgba(217, 119, 6, 0.12);
+    --color-danger:         #DC2626;
+    --color-danger-dim:     rgba(220, 38, 38, 0.12);
+    --color-info:           #007AFF;
+    --color-info-dim:       rgba(0, 122, 255, 0.12);
+    --color-violet:         #7C3AED;
+    --color-violet-dim:     rgba(124, 58, 237, 0.12);
+
+    /* Text & Contrast (WCAG AA Compliant) */
+    --color-text-primary:   #000000;
+    --color-text-secondary: #6C6C70;
+    --color-text-muted:     #8E8E93;
+    --color-text-dim:       rgba(0, 0, 0, 0.35);
+    --color-text-inverse:   #FFFFFF;
+
+    --opacity-overlay:      0.40;
+  }
+}
+
+
