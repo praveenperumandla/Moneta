@@ -5,7 +5,7 @@
     'iphone-16-pro': { label: 'iPhone 16 Pro', width: 402, height: 874, radius: 56 },
     'ipad-mini': { label: 'iPad Mini', width: 744, height: 1133, radius: 24 }
   };
-  const fallbackVersion = 'Unknown';
+  const fallbackVersion = 'v5.4.0';
   const preferencesKey = 'moneta_developer_preferences';
   const root = document.documentElement;
   const deviceSelect = document.getElementById('device-select');
@@ -87,17 +87,30 @@
     });
   });
   window.addEventListener('resize', () => { updateScale(); updateInfo(); });
-  fetch('VERSION', { cache: 'no-store' })
-    .then((response) => response.ok ? response.text() : Promise.reject(new Error('VERSION unavailable')))
-    .then((version) => {
-      const displayVersion = version.trim() || fallbackVersion;
-      versionInfo.textContent = displayVersion;
-      toolbarVersion.textContent = `Moneta ${displayVersion}`;
-    })
-    .catch(() => {
-      versionInfo.textContent = fallbackVersion;
-      toolbarVersion.textContent = `Moneta ${fallbackVersion}`;
-    });
+
+  const loadVersion = async () => {
+    try {
+      const response = await fetch('VERSION', { cache: 'no-store' });
+      if (response.ok) {
+        const text = (await response.text()).trim();
+        if (text) return text;
+      }
+    } catch {}
+    try {
+      const response = await fetch('index.html', { cache: 'no-store' });
+      if (response.ok) {
+        const html = await response.text();
+        const match = html.match(/settings-row__meta[^>]*>(v[0-9]+\.[0-9]+\.[0-9]+)</);
+        if (match && match[1]) return match[1];
+      }
+    } catch {}
+    return fallbackVersion;
+  };
+
+  loadVersion().then((displayVersion) => {
+    versionInfo.textContent = displayVersion;
+    toolbarVersion.textContent = `Moneta ${displayVersion}`;
+  });
 
   setPressed('[data-scale]', selectedScale, 'scale');
   setDevice(deviceSelect.value);

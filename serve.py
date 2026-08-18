@@ -24,6 +24,8 @@ class MyHTTPRequestHandler(http.server.SimpleHTTPRequestHandler):
         super().end_headers()
 
     def guess_type(self, path):
+        if path.endswith('/VERSION') or path.endswith('\\VERSION') or path == 'VERSION' or path.endswith('VERSION'):
+            return 'text/plain; charset=utf-8'
         if path.endswith('.js'):   return 'application/javascript'
         if path.endswith('.json'): return 'application/json'
         if path.endswith('.css'):  return 'text/css'

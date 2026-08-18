@@ -7,6 +7,7 @@ const STATIC_ASSETS = [
   basePath + '/css/tokens.css',
   basePath + '/app.js',
   basePath + '/manifest.json',
+  basePath + '/VERSION',
   basePath + '/icons/icon-192.png',
   basePath + '/icons/icon-512.png'
 ];
