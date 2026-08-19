@@ -356,13 +356,27 @@ const calculateXIRR = (cashflows) => {
 // ── Navigation ───────────────────────────────────────────
 const switchView = (viewId) => {
     document.querySelectorAll('.view-section').forEach(el => el.classList.remove('active'));
-    document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('active');
+        const icon = el.querySelector('i');
+        if (icon) {
+            icon.classList.remove('ph-fill');
+            icon.classList.add('ph');
+        }
+    });
 
     const section = document.getElementById('view-' + viewId);
     if (section) section.classList.add('active');
 
     const tab = document.querySelector(`.tab-btn[data-view="${viewId}"]`);
-    if (tab) tab.classList.add('active');
+    if (tab) {
+        tab.classList.add('active');
+        const icon = tab.querySelector('i');
+        if (icon) {
+            icon.classList.remove('ph');
+            icon.classList.add('ph-fill');
+        }
+    }
 
     if (viewId === 'borrowers' || viewId === 'home' || viewId === 'transactions') currentBorrowerId = null;
 

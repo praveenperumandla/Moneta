@@ -1,38 +1,45 @@
-/* Moneta Design Tokens — Apple HIG & Mobile-First Benchmark */
+/* Moneta Design Tokens — HDFC / iOS Liquid Glass */
 
 :root {
-  /* ── 1. COLORS (Semantic & Brand) ─────────────────────── */
-  --color-background:     #09090B;
-  --color-surface-1:      #121216;
-  --color-surface-2:      #18181F;
-  --color-surface-3:      #22222B;
-  --color-elevated:       #2A2A36;
-  
-  --color-border:         rgba(255, 255, 255, 0.07);
-  --color-border-md:      rgba(255, 255, 255, 0.13);
+  /* ── 1. COLORS ─────────────────────────────────────────── */
+  --color-background:     #0B0B0E;
+  --color-surface-1:      #141418;
+  --color-surface-2:      rgba(28, 28, 34, 0.72);
+  --color-surface-3:      rgba(42, 42, 50, 0.88);
+  --color-elevated:       #2E2E38;
 
-  /* Primary & Functional Accents */
-  --color-primary:        #00E5A3;
-  --color-primary-dim:    rgba(0, 229, 163, 0.14);
-  --color-success:        #00E5A3;
-  --color-success-dim:    rgba(0, 229, 163, 0.14);
-  --color-warning:        #F59E0B;
-  --color-warning-dim:    rgba(245, 158, 11, 0.14);
-  --color-danger:         #EB5B3C;
-  --color-danger-dim:     rgba(235, 91, 60, 0.14);
-  --color-info:           #4F8CFF;
-  --color-info-dim:       rgba(79, 140, 255, 0.14);
-  --color-violet:         #A78BFA;
-  --color-violet-dim:     rgba(167, 139, 250, 0.14);
+  --color-border:         rgba(255, 255, 255, 0.08);
+  --color-border-md:      rgba(255, 255, 255, 0.14);
 
-  /* ── 2. TEXT & CONTRAST (WCAG AA Compliant) ──────────── */
-  --color-text-primary:   #F8F8FA;
-  --color-text-secondary: #AEAEB2;
-  --color-text-muted:     rgba(255, 255, 255, 0.65);
-  --color-text-dim:       rgba(255, 255, 255, 0.40);
-  --color-text-inverse:   #09090B;
+  --color-primary:        #2EE6A6;
+  --color-primary-dim:    rgba(46, 230, 166, 0.14);
+  --color-success:        #2EE6A6;
+  --color-success-dim:    rgba(46, 230, 166, 0.14);
+  --color-warning:        #F5B942;
+  --color-warning-dim:    rgba(245, 185, 66, 0.14);
+  --color-danger:         #FF6B4A;
+  --color-danger-dim:     rgba(255, 107, 74, 0.14);
+  --color-info:           #5B9DFF;
+  --color-info-dim:       rgba(91, 157, 255, 0.14);
+  --color-violet:         #B49CFF;
+  --color-violet-dim:     rgba(180, 156, 255, 0.14);
 
-  /* ── 3. SPACING (8pt Standard Grid) ───────────────────── */
+  /* ── 2. TEXT ───────────────────────────────────────────── */
+  --color-text-primary:   #F4F4F6;
+  --color-text-secondary: #A8A8B0;
+  --color-text-muted:     rgba(255, 255, 255, 0.58);
+  --color-text-dim:       rgba(255, 255, 255, 0.36);
+  --color-text-inverse:   #0B0B0E;
+
+  /* ── 3. LIQUID GLASS ───────────────────────────────────── */
+  --glass-bg:             rgba(22, 22, 26, 0.52);
+  --glass-bg-strong:      rgba(22, 22, 26, 0.72);
+  --glass-stroke:         rgba(255, 255, 255, 0.16);
+  --glass-highlight:      rgba(255, 255, 255, 0.22);
+  --glass-shadow:         0 10px 36px rgba(0, 0, 0, 0.38), 0 1px 0 rgba(255, 255, 255, 0.12) inset;
+  --glass-blur:           blur(40px) saturate(190%);
+
+  /* ── 4. SPACING (8pt) ──────────────────────────────────── */
   --space-xs:             4px;
   --space-sm:             8px;
   --space-md:             12px;
@@ -41,7 +48,6 @@
   --space-2xl:            32px;
   --space-3xl:            48px;
 
-  /* Legacy Spacing Aliases */
   --space-1:              var(--space-sm);
   --space-2:              var(--space-lg);
   --space-3:              var(--space-xl);
@@ -51,87 +57,90 @@
   --space-7:              64px;
   --space-8:              80px;
 
-  /* ── 4. TYPOGRAPHY (5-Tier iOS Scale) ─────────────────── */
-  --font-family:          -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
-  
-  --font-size-display:    32px;
-  --font-size-title:      22px;
+  /* ── 5. TYPOGRAPHY (HDFC / SF Pro scale) ───────────────── */
+  --font-family:          -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", system-ui, sans-serif;
+  --font-display:         -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "SF Pro", system-ui, sans-serif;
+
+  --font-size-display:    40px;
+  --font-size-title:      28px;
   --font-size-headline:   17px;
   --font-size-body:       15px;
-  --font-size-caption:    12px;
+  --font-size-caption:    13px;
   --font-size-subcaption: 11px;
 
   --font-weight-regular:  400;
-  --font-weight-medium:   500;
-  --font-weight-semibold: 600;
+  --font-weight-medium:   510;
+  --font-weight-semibold: 590;
   --font-weight-bold:     700;
 
-  --tracking-display:     -0.03em;
-  --tracking-title:       -0.025em;
-  --tracking-headline:    -0.015em;
-  --tracking-body:        -0.005em;
-  --tracking-caps:        0.08em;
+  --tracking-display:     -0.04em;
+  --tracking-title:       -0.03em;
+  --tracking-headline:    -0.02em;
+  --tracking-body:        -0.01em;
+  --tracking-caps:        0.06em;
 
-  /* ── 5. BORDER RADIUS ─────────────────────────────────── */
-  --radius-small:         8px;
-  --radius-medium:        10px;
-  --radius-large:         12px;
-  --radius-xl:            16px;
+  /* ── 6. RADIUS ─────────────────────────────────────────── */
+  --radius-small:         10px;
+  --radius-medium:        14px;
+  --radius-large:         18px;
+  --radius-xl:            24px;
+  --radius-pill:          999px;
 
-  /* ── 6. MOTION & OPACITY ──────────────────────────────── */
+  /* ── 7. MOTION ─────────────────────────────────────────── */
   --opacity-disabled:     0.40;
   --opacity-hover:        0.08;
-  --opacity-overlay:      0.65;
+  --opacity-overlay:      0.55;
 
   --duration-fast:        150ms;
-  --duration-normal:      200ms;
-  --duration-slow:        300ms;
-  --easing-standard:      cubic-bezier(0.4, 0, 0.2, 1);
+  --duration-normal:      220ms;
+  --duration-slow:        320ms;
+  --easing-standard:      cubic-bezier(0.32, 0.72, 0, 1);
   --easing-sheet:         cubic-bezier(0.32, 0.72, 0, 1);
 
-  /* ── 7. Z-INDEX ───────────────────────────────────────── */
+  /* ── 8. Z-INDEX ────────────────────────────────────────── */
   --z-sticky:             50;
   --z-dropdown:           60;
   --z-overlay:            100;
   --z-modal:              200;
 }
 
-/* ── 8. SYSTEM-DRIVEN LIGHT APPEARANCE (Apple HIG) ─────── */
 @media (prefers-color-scheme: light) {
   :root {
-    /* Backgrounds & Surfaces (Apple System Light) */
-    --color-background:     #F2F2F7;
-    --color-surface-1:      #FFFFFF;
-    --color-surface-2:      #FFFFFF;
-    --color-surface-3:      #E5E5EA;
-    --color-elevated:       #D1D1D6;
-    
-    --color-border:         rgba(0, 0, 0, 0.08);
-    --color-border-md:      rgba(0, 0, 0, 0.14);
+    --color-background:     #F2F1EC;
+    --color-surface-1:      rgba(255, 255, 255, 0.72);
+    --color-surface-2:      rgba(255, 255, 255, 0.78);
+    --color-surface-3:      #E8E7E1;
+    --color-elevated:       #DDDCD6;
 
-    /* Primary & Functional Accents (Calibrated for light background contrast) */
-    --color-primary:        #00A87D;
-    --color-primary-dim:    rgba(0, 168, 125, 0.12);
-    --color-success:        #00A87D;
-    --color-success-dim:    rgba(0, 168, 125, 0.12);
-    --color-warning:        #D97706;
-    --color-warning-dim:    rgba(217, 119, 6, 0.12);
-    --color-danger:         #DC2626;
-    --color-danger-dim:     rgba(220, 38, 38, 0.12);
-    --color-info:           #007AFF;
-    --color-info-dim:       rgba(0, 122, 255, 0.12);
-    --color-violet:         #7C3AED;
-    --color-violet-dim:     rgba(124, 58, 237, 0.12);
+    --color-border:         rgba(0, 0, 0, 0.06);
+    --color-border-md:      rgba(0, 0, 0, 0.12);
 
-    /* Text & Contrast (WCAG AA Compliant) */
-    --color-text-primary:   #000000;
-    --color-text-secondary: #6C6C70;
-    --color-text-muted:     #8E8E93;
-    --color-text-dim:       rgba(0, 0, 0, 0.35);
+    --color-primary:        #0C8F6A;
+    --color-primary-dim:    rgba(12, 143, 106, 0.12);
+    --color-success:        #0C8F6A;
+    --color-success-dim:    rgba(12, 143, 106, 0.12);
+    --color-warning:        #C4841A;
+    --color-warning-dim:    rgba(196, 132, 26, 0.12);
+    --color-danger:         #D6452E;
+    --color-danger-dim:     rgba(214, 69, 46, 0.12);
+    --color-info:           #0A66D1;
+    --color-info-dim:       rgba(10, 102, 209, 0.12);
+    --color-violet:         #6D4AD4;
+    --color-violet-dim:     rgba(109, 74, 212, 0.12);
+
+    --color-text-primary:   #1A1A1C;
+    --color-text-secondary: #5C5C62;
+    --color-text-muted:     #8A8A90;
+    --color-text-dim:       rgba(0, 0, 0, 0.32);
     --color-text-inverse:   #FFFFFF;
 
-    --opacity-overlay:      0.40;
+    --glass-bg:             rgba(255, 255, 255, 0.58);
+    --glass-bg-strong:      rgba(255, 255, 255, 0.78);
+    --glass-stroke:         rgba(255, 255, 255, 0.72);
+    --glass-highlight:      rgba(255, 255, 255, 0.9);
+    --glass-shadow:         0 10px 32px rgba(26, 26, 28, 0.12), 0 1px 0 rgba(255, 255, 255, 0.85) inset;
+    --glass-blur:           blur(40px) saturate(180%);
+
+    --opacity-overlay:      0.36;
   }
 }
-
-
