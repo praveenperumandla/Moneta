@@ -1,164 +1,95 @@
 # Moneta Project Rules
 
-Version: 1.1
-Last Updated: 2026-08-19
+Version: 1.2
+Last Updated: 2026-08-20
 
 ---
 
 # Vision
 
-Moneta is a premium offline-first personal wealth and lending application.
-
-The objective is to deliver a beautiful, fast, privacy-focused application while preserving the integrity of the accounting engine.
+Premium offline-first personal wealth and lending app. Fast, private, accurate.
 
 ---
 
-# Core Principles
+# Core principles
 
-1. Offline First
-
-The application must function completely without an internet connection.
-
-Internet features are optional enhancements only.
+1. **Offline first** — works with no internet. Network is optional.
+2. **Privacy first** — data never leaves the device unless the user exports.
+3. **Accounting first** — UI must never change lending math.
 
 ---
 
-2. Privacy First
+# Protected components
 
-No user data leaves the device unless the user explicitly exports or syncs it.
+Do not change without a verified bug or approved accounting feature, plus `npm test`:
 
----
+- `js/core/accounting.js` — interest, repayment allocation, write-offs
+- `js/core/xirr.js`
+- Historical replay / closed-as-of
+- Import/export compatibility (`moneta_data_v1`, Vault `vault_data_v2`)
 
-3. Accounting First
+**Rule zero:** when in doubt, do not touch the accounting engine.
 
-The accounting engine is the most important component of the application.
-
-User interface improvements must never alter accounting behavior.
-
----
-
-# Protected Components
-
-The following areas are considered protected.
-
-- Interest calculations
-- Repayment allocation
-- Principal write-offs
-- Interest write-offs
-- XIRR calculations
-- Historical transaction processing
-- Import/Export data compatibility
-
-These components may only be modified when:
-
-- fixing a verified bug
-- implementing an approved accounting feature
-- improving performance without changing results
+Closed accounts are permanent. New loan = new account. Do not build “reopen”.
 
 ---
 
-# Architecture Rules
+# Architecture rules
 
-Prefer modular JavaScript.
+- Modular ES files under `js/`. `app.js` stays bootstrap-only.
+- Keep UI out of `js/core/`.
+- Never duplicate business logic.
+- New products = new folder + `registry.register()`. Do not import accounting from non-lending modules.
+- No React/Vite/bundler unless explicitly decided.
+- `dump/` is archive. Do not put live code there.
 
-Avoid global variables where possible.
-
-Keep UI separate from accounting.
-
-Never duplicate business logic.
-
-Reuse components whenever possible.
-
----
-
-# UI Principles
-
-The interface should be:
-
-- premium
-- elegant
-- calm
-- responsive
-- accessible
-
-Design inspiration:
-
-- Apple Human Interface Guidelines
-- Linear
-- Notion
-- Things 3
-
-Avoid unnecessary animations or visual clutter.
+`ARCHITECTURE.md` and this file stay at the **repo root** (not `docs/`).
 
 ---
 
-# Performance
+# UI
 
-Prefer simplicity over complexity.
+Premium, calm, mobile-first.
 
-Avoid unnecessary libraries.
+References: Apple HIG, Groww / INDMoney density, HDFC iOS craft (type, glass, pill nav).
 
-Maintain a lightweight application.
-
-Target:
-
-- Lighthouse >95
-- Smooth scrolling
-- Fast startup
-- Minimal memory usage
+Do not fight the iOS PWA home-indicator strip with extra bottom safe-area padding on `#app`.
 
 ---
 
-# Backward Compatibility
+# Tests
 
-Existing Vault users must never lose data.
+Before any accounting or persistence change:
 
-Always provide automatic migration where practical.
+```
+npm test
+```
 
-Existing JSON exports should continue to work.
-
----
-
-# Version Control & Mandatory Version Bumping
-
-Every Git commit / milestone **MUST** include a synchronized version bump across the codebase to guarantee PWA cache invalidation and traceability.
-
-Whenever committing code changes:
-
-1. **`VERSION` file:** Update the semantic version string (e.g., `v5.4.0`).
-2. **`index.html`:** Update the version display label in the Settings view (`<span class="settings-row__meta">v5.4.0</span>`).
-3. **`sw.js`:** Update `CACHE_NAME` (`const CACHE_NAME = 'moneta-v5.4.0';`). This triggers the PWA update lifecycle and prompts users to update while clearing stale asset caches.
-4. **Commit message:** Follow semantic commit conventions (`feat:`, `fix:`, `refactor:`, `docs:`) referencing the version or milestone.
+18 golden cases must stay green. If you extract math, pin first, then move.
 
 ---
 
-# Development Workflow
+# Backward compatibility
 
-Plan
-
-↓
-
-Implement
-
-↓
-
-Review
-
-↓
-
-Test
-
-↓
-
-Commit (with Version Bump)
-
-↓
-
-Release
+Vault users must never lose data. Migrate on read. Keep old JSON imports working.
 
 ---
 
-# Rule Zero
+# Version bump (every product commit)
 
-When in doubt, do not modify the accounting engine.
-- **Accounting Integrity:** Closed accounts are permanent. Do not build features to 'reopen' them. If a borrower needs a new loan, create a new Account. This prevents retroactive interest miscalculations.
+Sync all of these:
+
+1. `VERSION`
+2. `index.html` — Settings label and `?v=` on CSS/JS
+3. `sw.js` — `CACHE_NAME`
+4. `developer.js` — `fallbackVersion`
+
+Commit prefixes: `feat:`, `fix:`, `refactor:`, `docs:`, `test:`.
+
+Docs-only or dump moves do not require a version bump.
+
+---
+
+# Workflow
+
+Plan → implement → review → `npm test` → commit (version bump if product code) → release

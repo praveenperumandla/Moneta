@@ -1,329 +1,104 @@
 # Moneta Architecture
 
-Version: 1.0
-Last Updated: 2026-07-25
+Version: 1.2
+Last Updated: 2026-08-20
 
 ---
 
-# Purpose
+# What this is
 
-This document describes the architecture of Moneta.
+Moneta is an offline-first Progressive Web App. No backend, no cloud, no bundler, no framework.
 
-Its purpose is to help developers understand:
-
-- how the application is organized
-- where functionality belongs
-- how data flows through the system
-- which components are protected
-- where future features should be added
-
-This document should be updated whenever the architecture changes.
+The browser owns UI, lending math, localStorage, import/export, and the service worker.
 
 ---
 
-# High-Level Architecture
+# Why these two files live at the root
 
-Moneta is an offline-first Progressive Web Application (PWA).
+`ARCHITECTURE.md` and `PROJECT_RULES.md` stay in the **project root**, not `docs/`.
 
-Everything runs inside the user's browser.
+They are operating docs: humans and AI agents should find them immediately. `.github/copilot-instructions.md` points at these exact paths.
 
-There is:
-
-- No backend
-- No server-side database
-- No cloud dependency
-- No build system
-- No JavaScript framework
-
-The browser is responsible for:
-
-- User Interface
-- Accounting calculations
-- Data storage
-- Import / Export
-- Offline support
+`dump/` is archive only. Do not add new features there.
 
 ---
 
-# System Overview
+# System flow
 
-                 User
-                   │
-                   ▼
-           User Interface (UI)
-                   │
-                   ▼
-          Application Controller
-                   │
-        ┌──────────┴──────────┐
-        ▼                     ▼
-Accounting Engine       Local Storage
-        │                     │
-        └──────────┬──────────┘
-                   ▼
-             Refresh UI
+```
+User action
+    → update state (js/app/state.js)
+    → autoSave (js/app/persistence.js)
+    → refreshUI paints the active view only
+```
+
+Home totals come from `js/modules/registry.js` (`snapshotAll`). Lending is the first registered module.
 
 ---
 
-# Current Project Structure
+# Live project structure
 
-index.html
-
-Application shell.
-
-Responsible for:
-
-- Layout
-- Navigation
-- Forms
-- Modals
-
-No business logic should exist here.
-
----
-
-styles.css
-
-Contains:
-
-- Layout
-- Components
-- Responsive rules
-- Theme
-
-Future versions will split this into multiple CSS files.
+```
+index.html          shell, markup, sheets
+app.js              bootstrap only
+styles.css          screens and components
+css/tokens.css      colors, type, glass, --safe-top / --safe-bottom
+js/core/            accounting, xirr, dates, money, schema, storage, migrate
+js/app/             state, nav, refresh, persistence, bus
+js/modules/         registry, lending/, networth/
+js/ui/              home, sheets, settings, transactions
+sw.js               PWA cache
+manifest.json       standalone display
+VERSION             app version string
+icons/
+tests/              Node --test goldens (npm test)
+package.json        test runner only
+developer.*         PWA preview studio
+serve.py            local static server
+```
 
 ---
 
-app.js
+# Data
 
-Bootstrap only: registers the lending module, wires the bus, binds events.
-
-Business logic lives under `js/`.
-
----
-
-manifest.json
-
-Defines:
-
-- PWA metadata
-- Icons
-- Theme colour
-- Display mode
+- Writer key: `localStorage['moneta_data_v1']` (flat `{ borrowers, accounts, transactions, portfolios }`)
+- Reader also accepts legacy `vault_data_v2` and schema v2 (`modules.lending`)
+- Writer stays on v1 until a dual-stack cutover is explicitly approved
 
 ---
 
-sw.js
+# Protected core
 
-Provides:
+`js/core/accounting.js` and `js/core/xirr.js`
 
-- Offline caching
-- Asset caching
-- Update lifecycle
+Interest, repayment split, write-offs, closed-as-of, XIRR. Do not edit formulas without `npm test` staying green.
 
----
-
-serve.py
-
-Local development server.
-
-Not used in production.
+Closed accounts stay closed. New loan = new account.
 
 ---
 
-# Data Flow
+# How to add the next product (FD, investments, …)
 
-User Action
-
-↓
-
-Update State
-
-↓
-
-Auto Save
-
-↓
-
-Recalculate
-
-↓
-
-Refresh UI
+1. Add `js/modules/<id>/` implementing the registry contract (`snapshot`, `id`, `label`).
+2. Register it from `app.js`.
+3. Do **not** import `js/core/accounting.js` from a non-lending module.
 
 ---
 
-# Data Storage
+# iOS PWA layout (do not “fix” this with random padding)
 
-Current storage:
+Standalone iOS keeps a home-indicator strip **outside** the webview (~64px on the current device). CSS cannot paint there.
 
-localStorage
-
-Key:
-
-moneta_data_v1
-
-Legacy key `vault_data_v2` is still read and copied forward. Schema v2 (`modules.lending`) is accepted on import; the writer stays on flat v1.
+- Top: use `--safe-top` (`env(safe-area-inset-top)`) so the header clears the status bar.
+- Bottom: do **not** add `env(safe-area-inset-bottom)` on `#app` — it double-counts and lifts the tab bar.
+- Tab pill sits at the bottom of **our** box. Developer studio “Webview bottom inset 64” matches the phone.
 
 ---
 
-# Core Components
-
-## Accounting Engine
-
-Responsible for:
-
-- Interest calculation
-- Repayment allocation
-- Write-offs
-- Outstanding balances
-- XIRR
-
-Status:
-
-Protected
-
-Changes require explicit approval.
-
----
-
-## Persistence Layer
-
-Responsible for:
-
-- Saving
-- Loading
-- Import
-- Export
-- Data migration
-
-Status:
-
-Stable
-
----
-
-## Rendering Layer
-
-Responsible for:
-
-- Dashboard
-- Borrowers
-- Ledger
-- Charts
-
-This layer is expected to evolve significantly.
-
----
-
-# Module Architecture (v5.6.0)
-
-See `docs/REFACTORING_PLAN.md`. Implemented:
-
-js/
-
-    core/          accounting, xirr, dates, money, schema, storage, migrate
-    app/           state, nav, refresh, persistence
-    modules/       registry + lending + networth aggregator
-    ui/            home, sheets, settings, transactions
-
-app.js is bootstrap only. Accounting is imported, not copied.
-
----
-
-# Design Principles
+# Design principles
 
 1. Accounting before appearance.
-
-2. UI and accounting must remain independent.
-
+2. UI and accounting stay independent.
 3. Never duplicate business logic.
-
-4. Prefer reusable components.
-
-5. Prefer simple solutions.
-
-6. Maintain offline capability.
-
-7. Preserve backward compatibility.
-
----
-
-# Protected Areas
-
-The following are considered production-critical.
-
-- Interest calculations
-- Repayment allocation
-- XIRR
-- Write-off processing
-- Historical transaction replay
-
-These areas should not be modified without regression testing.
-
----
-
-# Future Modules
-
-The architecture should support:
-
-- Investments
-- Mutual Funds
-- Stocks
-- Gold
-- Fixed Deposits
-- EPF
-- NPS
-- Net Worth
-- Income
-- Expenses
-- AI Insights
-
-These modules should integrate without requiring major architectural changes.
-
----
-
-# Development Workflow
-
-Plan
-
-↓
-
-Design
-
-↓
-
-Implement
-
-↓
-
-Review
-
-↓
-
-Test
-
-↓
-
-Commit
-
-↓
-
-Release
-
----
-
-# Architecture Goal
-
-Moneta should remain:
-
-- Fast
-- Lightweight
-- Offline-first
-- Privacy-first
-- Easy to understand
-- Easy to maintain
-- Easy to extend
-
-Every architectural decision should support these goals.
+4. Offline and Vault-backup compatible.
+5. New wealth products plug in via the registry.
