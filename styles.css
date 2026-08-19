@@ -52,8 +52,8 @@
   --r-xl:        var(--radius-xl);
   --r-pill:      var(--radius-pill);
 
-  /* Layout — floating pill nav */
-  --tab-h:       62px;
+  /* Layout — in-flow pill nav. Safe area is applied ONCE on #app. */
+  --tab-h:       58px;
   --tab-inset:   16px;
   --hdr-h:       52px;
   --safe-area-bottom: 0px;
@@ -98,6 +98,7 @@ input, textarea, select {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
   background:
     radial-gradient(ellipse 90% 42% at 50% -12%, rgba(46, 230, 166, 0.09), transparent 58%),
     var(--bg);
@@ -211,7 +212,7 @@ input, textarea, select {
 .view-section.active { display: block; }
 
 .view-content {
-  padding: var(--space-lg) var(--space-lg) calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 28px);
+  padding: var(--space-lg) var(--space-lg) var(--space-lg);
 }
 
 /* ── Page Title Block ───────────────────────────────────── */
@@ -599,12 +600,13 @@ input, textarea, select {
 }
 .profile-overview-tile {
   display: flex;
-  align-items: center;
-  gap: var(--space-xs);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
   background: rgba(255, 255, 255, 0.025);
   border: 1px solid var(--border);
   border-radius: var(--r-sm);
-  padding: var(--space-sm) var(--space-md);
+  padding: 10px 12px;
   font-size: var(--font-size-caption);
   color: var(--t2);
   min-width: 0;
@@ -615,6 +617,9 @@ input, textarea, select {
   flex-shrink: 0;
 }
 .profile-overview-tile .tile-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   color: var(--t3);
   font-size: var(--font-size-subcaption);
   white-space: nowrap;
@@ -622,10 +627,13 @@ input, textarea, select {
 .profile-overview-tile .tile-val {
   color: var(--t1);
   font-weight: 600;
-  margin-left: auto;
+  font-family: var(--font-num);
+  font-size: 14px;
+  letter-spacing: -0.02em;
+  margin-left: 0;
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow: visible;
+  max-width: 100%;
 }
 
 .section-label {
@@ -1024,15 +1032,20 @@ input, textarea, select {
 .settings-row__arrow { font-size: 16px; color: var(--t3); }
 .settings-row__meta  { font-size: var(--font-size-caption); color: var(--t3); }
 
-/* ── Bottom Tab Bar — HDFC / iOS liquid-glass pill ─────── */
+/* ── Bottom Tab Bar — in-flow pill (never position:fixed) ─
+   Fixed + env(safe-area-inset-bottom) double-counts the
+   iOS home indicator in standalone PWAs. Dock in the #app
+   flex column; #app already owns the safe-area padding. */
 .tab-bar {
-  position: fixed;
-  left: var(--tab-inset);
-  right: var(--tab-inset);
-  bottom: calc(10px + env(safe-area-inset-bottom, 0px));
+  position: relative;
+  flex-shrink: 0;
+  left: auto;
+  right: auto;
+  bottom: auto;
   width: auto;
   box-sizing: border-box;
   height: var(--tab-h);
+  margin: 8px var(--tab-inset);
   padding: 5px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -1046,8 +1059,6 @@ input, textarea, select {
   gap: 2px;
   z-index: 100;
   isolation: isolate;
-  transition: transform 0.32s var(--easing-standard), opacity 0.32s var(--easing-standard);
-  will-change: transform;
 }
 
 .tab-bar::before {
@@ -1061,8 +1072,7 @@ input, textarea, select {
 }
 
 .tab-bar.tab-bar--hidden {
-  transform: translateY(calc(100% + 28px));
-  opacity: 0;
+  opacity: 1;
 }
 
 .tab-btn {
@@ -1459,7 +1469,7 @@ html { -webkit-text-size-adjust: 100%; }
 /* ── Update Toast ──────────────────────────────────────── */
 .update-toast {
   position: fixed;
-  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 28px);
+  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 20px);
   left: var(--space-lg);
   right: var(--space-lg);
   background: var(--surface-2);

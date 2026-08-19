@@ -97,15 +97,9 @@ Future versions will split this into multiple CSS files.
 
 app.js
 
-Currently contains:
+Bootstrap only: registers the lending module, wires the bus, binds events.
 
-- State
-- Persistence
-- Accounting
-- Rendering
-- Event handling
-
-This file will gradually be modularized without changing behaviour.
+Business logic lives under `js/`.
 
 ---
 
@@ -168,9 +162,9 @@ localStorage
 
 Key:
 
-vault_data_v2
+moneta_data_v1
 
-Future versions will migrate automatically to a Moneta storage key while remaining backward compatible.
+Legacy key `vault_data_v2` is still read and copied forward. Schema v2 (`modules.lending`) is accepted on import; the writer stays on flat v1.
 
 ---
 
@@ -223,31 +217,18 @@ This layer is expected to evolve significantly.
 
 ---
 
-# Planned Architecture
+# Module Architecture (v5.6.0)
 
-Future versions will gradually separate responsibilities.
+See `docs/REFACTORING_PLAN.md`. Implemented:
 
 js/
 
-    core/
-        accounting.js
-        storage.js
-        calculations.js
-        migration.js
+    core/          accounting, xirr, dates, money, schema, storage, migrate
+    app/           state, nav, refresh, persistence
+    modules/       registry + lending + networth aggregator
+    ui/            home, sheets, settings, transactions
 
-    ui/
-        dashboard.js
-        borrowers.js
-        ledger.js
-        navigation.js
-        charts.js
-
-    components/
-        modal.js
-        cards.js
-        buttons.js
-
-This modularization must preserve existing behaviour.
+app.js is bootstrap only. Accounting is imported, not copied.
 
 ---
 

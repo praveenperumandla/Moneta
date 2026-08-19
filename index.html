@@ -10,8 +10,8 @@
   <title>Moneta · Wealth Tracker</title>
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icons/icon-192.png" />
-  <link rel="stylesheet" href="css/tokens.css?v=5.5.0" />
-  <link rel="stylesheet" href="styles.css?v=5.5.0" />
+  <link rel="stylesheet" href="css/tokens.css?v=5.6.0" />
+  <link rel="stylesheet" href="styles.css?v=5.6.0" />
   <!-- Phosphor Icons -->
   <script src="https://unpkg.com/@phosphor-icons/web@2.1.1/src/index.js" crossorigin="anonymous" defer></script>
   <!-- Chart.js -->
@@ -244,23 +244,19 @@
           
           <div class="profile-overview-grid">
             <div class="profile-overview-tile">
-              <i class="ph ph-house"></i>
-              <span class="tile-label">Active Loans:</span>
+              <span class="tile-label"><i class="ph ph-house"></i> Active Loans</span>
               <span class="tile-val" id="ledger-active-loans">0</span>
             </div>
             <div class="profile-overview-tile">
-              <i class="ph ph-hand-coins"></i>
-              <span class="tile-label">Total Lent:</span>
+              <span class="tile-label"><i class="ph ph-hand-coins"></i> Total Lent</span>
               <span class="tile-val" id="ledger-total-lent">₹0</span>
             </div>
             <div class="profile-overview-tile">
-              <i class="ph ph-calendar"></i>
-              <span class="tile-label">Start Date:</span>
+              <span class="tile-label"><i class="ph ph-calendar"></i> Start Date</span>
               <span class="tile-val" id="ledger-next-repayment">—</span>
             </div>
             <div class="profile-overview-tile">
-              <i class="ph ph-chart-line-up"></i>
-              <span class="tile-label">Interest O/S:</span>
+              <span class="tile-label"><i class="ph ph-chart-line-up"></i> Interest O/S</span>
               <span class="tile-val" id="ledger-interest-outstanding">₹0</span>
             </div>
           </div>
@@ -339,7 +335,7 @@
           <div class="settings-row" style="cursor:default">
             <i class="ph ph-vault settings-row__icon"></i>
             <span class="settings-row__label">Moneta</span>
-            <span class="settings-row__meta">v5.5.0</span>
+            <span class="settings-row__meta">v5.6.0</span>
           </div>
           <button type="button" class="settings-row" id="btn-check-updates">
             <i class="ph ph-arrows-clockwise settings-row__icon"></i>
@@ -569,7 +565,7 @@
   <button class="update-toast__btn" id="btn-update-app">Tap to update</button>
 </div>
 
-<script src="app.js?v=5.5.0"></script>
+<script type="module" src="app.js?v=5.6.0"></script>
 <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {

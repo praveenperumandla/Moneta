@@ -1,0 +1,8 @@
+{
+  "name": "moneta",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test tests/accounting.test.js tests/xirr.test.js tests/migrate.test.js tests/aggregator.test.js"
+  }
+}

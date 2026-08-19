@@ -1,0 +1,104 @@
+{
+  "G1": {
+    "outstandingPrincipal": 100000,
+    "accruedInterest": 1019.1780821917808,
+    "outstandingInterest": 1019.1780821917808,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 0,
+    "isWrittenOff": false
+  },
+  "G2": {
+    "outstandingPrincipal": 97991.78082191781,
+    "accruedInterest": 2991.780821917808,
+    "outstandingInterest": 0,
+    "totalGotInterest": 2991.780821917808,
+    "totalGotPrincipal": 2008.2191780821918,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 5000,
+    "isWrittenOff": false
+  },
+  "G3": {
+    "outstandingPrincipal": 100000,
+    "accruedInterest": 2991.780821917808,
+    "outstandingInterest": 991.7808219178082,
+    "totalGotInterest": 2000,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 2000,
+    "isWrittenOff": false
+  },
+  "G4": {
+    "outstandingPrincipal": 90000,
+    "accruedInterest": 2991.780821917808,
+    "outstandingInterest": 2991.780821917808,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 10000,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 10000,
+    "isWrittenOff": false
+  },
+  "G5": {
+    "outstandingPrincipal": 60000,
+    "accruedInterest": 2432.876712328767,
+    "outstandingInterest": 932.8767123287671,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 1500,
+    "totalWrittenOffPrincipal": 40000,
+    "totalGot": 0,
+    "isWrittenOff": false
+  },
+  "G6": {
+    "outstandingPrincipal": 100000,
+    "accruedInterest": 4997.260273972603,
+    "outstandingInterest": 4997.260273972603,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 0,
+    "isWrittenOff": false
+  },
+  "G7": {
+    "outstandingPrincipal": 100000,
+    "accruedInterest": 1019.1780821917808,
+    "outstandingInterest": 1019.1780821917808,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 0,
+    "isWrittenOff": false
+  },
+  "G8": {
+    "outstandingPrincipal": 100000,
+    "accruedInterest": 1972.6027397260275,
+    "outstandingInterest": 1972.6027397260275,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 0,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 0,
+    "isWrittenOff": false
+  },
+  "G10": {
+    "outstandingPrincipal": 0,
+    "accruedInterest": 0,
+    "outstandingInterest": 0,
+    "totalGotInterest": 0,
+    "totalGotPrincipal": 100000,
+    "totalWrittenOffInterest": 0,
+    "totalWrittenOffPrincipal": 0,
+    "totalGot": 100000,
+    "isWrittenOff": false
+  },
+  "G9": {
+    "rate": 0.09978518245839527
+  }
+}
