@@ -65,6 +65,7 @@ html, body {
   background-color: var(--bg);
   color: var(--t1);
   height: 100%;
+  height: -webkit-fill-available;
   width: 100%;
   margin: 0; padding: 0;
   overflow: hidden;
@@ -89,16 +90,22 @@ input, textarea, select {
 }
 
 /* ── App Shell (Full Viewport Flex Column) ──────────────── */
+/* iOS standalone already excludes the home-indicator from a
+   position:fixed box. Do NOT also add env(safe-area-inset-bottom)
+   or the tab bar floats 60–80px high. Top still needs env()
+   because black-translucent draws under the status bar. */
 #app {
   position: fixed;
-  inset: 0;
-  width: 100%;
-  height: 100dvh;
-  height: 100%;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  width: auto;
+  height: auto;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: 0;
   background:
     radial-gradient(ellipse 90% 42% at 50% -12%, rgba(46, 230, 166, 0.09), transparent 58%),
     var(--bg);
@@ -1045,7 +1052,7 @@ input, textarea, select {
   width: auto;
   box-sizing: border-box;
   height: var(--tab-h);
-  margin: 8px var(--tab-inset);
+  margin: 6px var(--tab-inset) 8px;
   padding: 5px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
