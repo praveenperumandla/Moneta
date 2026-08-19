@@ -98,6 +98,9 @@
   --easing-sheet:         cubic-bezier(0.32, 0.72, 0, 1);
 
   /* ── 8. Z-INDEX ────────────────────────────────────────── */
+  --safe-top:             env(safe-area-inset-top, 0px);
+  --safe-bottom:          env(safe-area-inset-bottom, 0px);
+
   --z-sticky:             50;
   --z-dropdown:           60;
   --z-overlay:            100;

@@ -9,43 +9,98 @@
 </head>
 <body>
   <main class="studio-shell">
-    <section class="preview-panel" aria-label="Moneta device preview">
+    <section class="preview-panel" aria-label="Moneta PWA preview">
       <header class="studio-header">
-        <div><p class="eyebrow">Moneta</p><h1>Device preview</h1></div>
+        <div>
+          <p class="eyebrow">Moneta</p>
+          <h1>PWA preview</h1>
+        </div>
         <div class="studio-toolbar" aria-label="Developer Studio toolbar">
-          <div class="toolbar-product"><strong>Developer Studio</strong><span id="toolbar-version">Moneta Loading…</span></div>
-          <span class="status"><span class="status-dot"></span> Live preview</span>
+          <div class="toolbar-product">
+            <strong>Developer Studio</strong>
+            <span id="toolbar-version">Moneta Loading…</span>
+          </div>
+          <span class="status"><span class="status-dot"></span> Standalone PWA</span>
         </div>
       </header>
       <div class="device-stage" id="device-stage">
         <div class="preview-canvas" id="preview-canvas">
           <div class="device-frame" id="device-frame">
             <div class="device-screen">
-              <iframe id="app-preview" src="index.html" title="Moneta app preview"></iframe>
-              <div class="safe-area safe-area-top" aria-hidden="true"></div>
-              <div class="dynamic-island" aria-hidden="true"></div>
-              <div class="safe-area safe-area-bottom" aria-hidden="true"></div>
-              <div class="home-indicator" aria-hidden="true"></div>
+              <div class="pwa-webview">
+                <iframe id="app-preview" title="Moneta PWA preview"></iframe>
+                <div class="pwa-status" aria-hidden="true">
+                  <span id="pwa-clock">9:41</span>
+                  <span class="pwa-status-icons">LTE 100%</span>
+                </div>
+                <div class="dynamic-island" aria-hidden="true"></div>
+              </div>
+              <div class="pwa-home-slot" aria-hidden="true">
+                <div class="home-indicator"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
     <aside class="controls-panel" aria-label="Developer controls">
-      <div class="controls-heading"><p class="eyebrow">Simulator</p><h2>Preview controls</h2></div>
+      <div class="controls-heading">
+        <p class="eyebrow">Simulator</p>
+        <h2>Preview controls</h2>
+      </div>
+      <p class="preview-hint">iOS standalone does <strong>not</strong> give the webview the home-indicator strip. That strip sits <em>outside</em> the iframe (the gap you see on the phone). <code>env(safe-area)</code> is still injected into the app.</p>
+      <section class="control-group">
+        <span class="control-label">Display mode</span>
+        <div class="button-group button-group-2" role="group" aria-label="Display mode">
+          <button type="button" data-mode="pwa" aria-pressed="true">PWA standalone</button>
+          <button type="button" data-mode="bare">Bare iframe</button>
+        </div>
+      </section>
+      <section class="control-group">
+        <span class="control-label">Webview bottom inset</span>
+        <div class="button-group" role="group" aria-label="Webview bottom inset">
+          <button type="button" data-inset="device">Device</button>
+          <button type="button" data-inset="34">34</button>
+          <button type="button" data-inset="48">48</button>
+          <button type="button" data-inset="64" aria-pressed="true">64</button>
+          <button type="button" data-inset="80">80</button>
+        </div>
+      </section>
       <section class="control-group">
         <label for="device-select">Device</label>
-        <select id="device-select"><option value="iphone-se">iPhone SE</option><option value="iphone-13" selected>iPhone 13</option><option value="iphone-16-pro">iPhone 16 Pro</option><option value="ipad-mini">iPad Mini</option></select>
+        <select id="device-select">
+          <option value="iphone-se">iPhone SE</option>
+          <option value="iphone-13" selected>iPhone 13</option>
+          <option value="iphone-16-pro">iPhone 16 Pro</option>
+          <option value="ipad-mini">iPad Mini</option>
+        </select>
       </section>
       <section class="control-group">
         <span class="control-label">Scale</span>
-        <div class="button-group" role="group" aria-label="Preview scale"><button type="button" data-scale="0.5">50%</button><button type="button" data-scale="0.75">75%</button><button type="button" data-scale="1">100%</button><button type="button" data-scale="1.2" aria-pressed="true">120%</button><button type="button" data-scale="fit">Fit</button></div>
+        <div class="button-group" role="group" aria-label="Preview scale">
+          <button type="button" data-scale="0.5">50%</button>
+          <button type="button" data-scale="0.75">75%</button>
+          <button type="button" data-scale="1">100%</button>
+          <button type="button" data-scale="1.2" aria-pressed="true">120%</button>
+          <button type="button" data-scale="fit">Fit</button>
+        </div>
       </section>
-      <section class="control-group"><span class="control-label">Theme</span><div class="readonly-field" aria-label="Theme: Dark, current"><span>Dark</span><span class="current-indicator">Current</span></div></section>
       <section class="information-panel" aria-labelledby="preview-info-title">
-        <div class="information-heading"><p class="eyebrow">Runtime</p><h2 id="preview-info-title">Developer information</h2></div>
+        <div class="information-heading">
+          <p class="eyebrow">Runtime</p>
+          <h2 id="preview-info-title">Developer information</h2>
+        </div>
         <dl>
-          <div><dt>Version</dt><dd id="info-version">Loading…</dd></div><div><dt>Current device</dt><dd id="info-device">—</dd></div><div><dt>Resolution</dt><dd id="info-resolution">—</dd></div><div><dt>Scale</dt><dd id="info-scale">—</dd></div><div><dt>Orientation</dt><dd id="info-orientation">—</dd></div><div><dt>Window size</dt><dd id="info-window">—</dd></div><div><dt>Browser</dt><dd id="info-browser">—</dd></div><div><dt>PWA status</dt><dd id="info-pwa">Checking…</dd></div>
+          <div><dt>Version</dt><dd id="info-version">Loading…</dd></div>
+          <div><dt>Current device</dt><dd id="info-device">—</dd></div>
+          <div><dt>Injected SAT</dt><dd id="info-sat">—</dd></div>
+          <div><dt>Injected SAB</dt><dd id="info-sab">—</dd></div>
+          <div><dt>Webview inset</dt><dd id="info-inset">—</dd></div>
+          <div><dt>Resolution</dt><dd id="info-resolution">—</dd></div>
+          <div><dt>Scale</dt><dd id="info-scale">—</dd></div>
+          <div><dt>Window size</dt><dd id="info-window">—</dd></div>
+          <div><dt>Browser</dt><dd id="info-browser">—</dd></div>
+          <div><dt>PWA status</dt><dd id="info-pwa">Checking…</dd></div>
         </dl>
       </section>
     </aside>
