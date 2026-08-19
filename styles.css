@@ -117,8 +117,8 @@ input, textarea, select {
   align-items: center;
   justify-content: space-between;
   padding: 0 var(--space-lg);
-  padding-top: env(safe-area-inset-top, 0px);
-  height: calc(var(--hdr-h) + env(safe-area-inset-top, 0px));
+  padding-top: var(--safe-top);
+  height: calc(var(--hdr-h) + var(--safe-top));
   flex-shrink: 0;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -1052,7 +1052,7 @@ input, textarea, select {
   width: auto;
   box-sizing: border-box;
   height: var(--tab-h);
-  margin: 6px var(--tab-inset) 8px;
+  margin: 6px var(--tab-inset) 0;
   padding: 5px;
   background: var(--glass-bg);
   backdrop-filter: var(--glass-blur);
@@ -1150,7 +1150,7 @@ input, textarea, select {
   overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   animation: sheetUp 280ms cubic-bezier(0.32, 0.72, 0, 1);
-  padding-bottom: calc(var(--space-lg) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: calc(var(--space-lg) + var(--safe-bottom));
   box-shadow: var(--glass-shadow);
 }
 .sheet.hidden { display: none; }
@@ -1476,7 +1476,7 @@ html { -webkit-text-size-adjust: 100%; }
 /* ── Update Toast ──────────────────────────────────────── */
 .update-toast {
   position: fixed;
-  bottom: calc(var(--tab-h) + env(safe-area-inset-bottom, 0px) + 20px);
+  bottom: calc(var(--tab-h) + var(--safe-bottom) + 20px);
   left: var(--space-lg);
   right: var(--space-lg);
   background: var(--surface-2);
